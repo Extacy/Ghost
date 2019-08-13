@@ -38,14 +38,14 @@ int g_iCoolDownTimer = 5; // How long, in seconds, should the cooldown between r
 
 int g_iLastButtons[MAXPLAYERS + 1]; // Last used button (+use, +reload etc) for players in Redie. - Used for noclip
 
+char g_sMapName[32];
 
-// TODO: Make it clear to change sm_redie_autobhop and sm_redie_speed on days / warmup
 
 // Natives
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
 {
-   CreateNative("Redie_InRedie", Native_InRedie);
-   return APLRes_Success;
+	CreateNative("Redie_InRedie", Native_InRedie);
+	return APLRes_Success;
 }
 
 public int Native_InRedie(Handle plugin, int numParams)
@@ -99,12 +99,13 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_rmenu", CMD_RedieMenu, "Display Redie menu.");
 	
 	for (int i = 0; i <= MaxClients; i++)
-		if (IsValidClient(i))
-			OnClientPutInServer(i);
+	if (IsValidClient(i))
+		OnClientPutInServer(i);
 }
 
 public void OnMapStart()
 {
+	GetCurrentMap(g_sMapName, sizeof(g_sMapName));
 	PrecacheModel("models/props/cs_militia/bottle02.mdl");
 }
 
@@ -138,11 +139,13 @@ public void OnEntityCreated(int entity, const char[] classname)
 		SDKHookEx(entity, SDKHook_Touch, FakeTriggerTeleport);
 	}
 	
-	if (StrEqual(classname, "func_rotating"))
+	// Hotfix to stop players in Redie from stopping the rotating block on clouds. Will implement a more permanent fix in the future.
+	if (StrEqual(classname, "func_rotating") && StrEqual(g_sMapName, "jb_clouds_final5"))
 	{
-		SDKHookEx(entity, SDKHook_EndTouch, TeleportOnTouch);
-		SDKHookEx(entity, SDKHook_StartTouch, TeleportOnTouch);
-		SDKHookEx(entity, SDKHook_Touch, TeleportOnTouch);
+		SetEntProp(entity, Prop_Send, "m_usSolidFlags", 4);
+		//SDKHookEx(entity, SDKHook_EndTouch, TeleportOnTouch);
+		//SDKHookEx(entity, SDKHook_StartTouch, TeleportOnTouch);
+		//SDKHookEx(entity, SDKHook_Touch, TeleportOnTouch);
 	}
 }
 
@@ -315,8 +318,8 @@ public Action OnNormalSoundPlayed(int clients[64], int &numClients, char sample[
 {
 	if (IsValidClient(entity))
 		if (entity && entity <= MaxClients && g_bInRedie[entity])
-			return Plugin_Handled;
-			
+		return Plugin_Handled;
+	
 	return Plugin_Continue;
 }
 
@@ -445,7 +448,7 @@ public Action TeleportOnTouch(int entity, int client)
 		position[0] += 15;
 		position[2] += 5;
 		TeleportEntity(client, position, NULL_VECTOR, NULL_VECTOR);
-		SetEntityMoveType(client, MOVETYPE_NOCLIP);
+		//SetEntityMoveType(client, MOVETYPE_NOCLIP);
 		PrintToChat(client, "%s You were teleported for touching a func_rotating!", REDIE_PREFIX);
 		return Plugin_Handled;
 	}
@@ -549,7 +552,7 @@ public void Redie(int client)
 				SetEntProp(g_iRedieProp[client], Prop_Send, "m_CollisionGroup", 1);
 				SetEntProp(g_iRedieProp[client], Prop_Send, "m_nSolidType", 0);
 				SetEntityRenderMode(g_iRedieProp[client], RENDER_TRANSALPHA);
-				SetEntityRenderColor(g_iRedieProp[client], _, _, _, 80);
+				SetEntityRenderColor(g_iRedieProp[client], _, _, _, 150);
 				TeleportEntity(g_iRedieProp[client], pos, angles, NULL_VECTOR);
 				
 				SetVariantString("!activator");
