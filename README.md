@@ -1,6 +1,9 @@
 # Redie-Improved
 Improved version of Pyro_'s Redie.
 
+Video Demo: <a href="http://www.youtube.com/watch?feature=player_embedded&v=m1h1yq5s3mQ
+" target="_blank"><img src="http://img.youtube.com/vi/m1h1yq5s3mQ/0.jpg" 
+alt="Redie Test Video" width="240" height="180" border="10" /></a>
 ## Features:
 * Noclip
 * Autobhop
