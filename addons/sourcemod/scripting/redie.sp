@@ -7,10 +7,11 @@
 #include <entity>
 #include <regex>
 #include <clientprefs>
+#include <skynetjailbreak>
 
 #pragma newdecls required
 
-#define REDIE_PREFIX " \x01[\x03Redie\x01]\x04" // Replace with your server's custom prefix / colours.
+#define REDIE_PREFIX " \x0C➤➤➤\x0B" // Replace with your server's custom prefix / colours.
 EngineVersion g_Game;
 
 // Client Preferences
@@ -388,6 +389,22 @@ public Action CMD_InRedie(int client, int args)
 }
 
 // Events
+public Action SNGJailbreak_OnDayStart(int client, int dayIndex)
+{
+	// Disable bhop + speed on days so Redie does not interfere with alive players.
+	g_cRedieBhop.BoolValue = false;
+	g_cRedieSpeed.BoolValue = false;
+	return Plugin_Continue;
+}
+
+public void SNGJailbreak_OnDayEnd(int dayIndex)
+{
+	// Re enable bhop + speed for players in Redie after a day ends.
+	g_cRedieBhop.BoolValue = true;
+	g_cRedieSpeed.BoolValue = true;
+}
+
+
 public Action Event_PrePlayerDeath(Event event, const char[] name, bool dontBroadcast)
 {
 	int userid = event.GetInt("userid");
