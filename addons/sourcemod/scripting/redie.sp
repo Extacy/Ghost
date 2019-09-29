@@ -5,12 +5,17 @@
 #include <sdktools>
 #include <sdkhooks>
 #include <entity>
+#include <regex>
+#include <clientprefs>
 
 #pragma newdecls required
 
-//#define REDIE_PREFIX	"[Redie]" 	// Replace with your server's custom prefix / colours.
-#define REDIE_PREFIX " \x0C➤➤➤\x0B"
+#define REDIE_PREFIX " \x01[\x03Redie\x01]\x04" // Replace with your server's custom prefix / colours.
 EngineVersion g_Game;
+
+// Client Preferences
+Handle g_hViewPlayers; // Cookie to enable/disable viewing other players in Redie
+Handle g_hRedieBanned; // Cookie for if player is banned from Redie.
 
 // ConVars
 ConVar g_cRedieEnabled; // Set if Redie is enabled or disabled on the server.
@@ -24,6 +29,7 @@ ConVar sv_enablebunnyhopping; // Used for unlimited speed when bhopping
 
 // Variables
 bool g_bInRedie[MAXPLAYERS + 1]; // Clients currently in Redie
+bool g_bBlockSounds[MAXPLAYERS + 1]; // Clients that cannot make sounds (this is used because g_bInRedie must be set to false when respawning player.)
 bool g_bBhopEnabled[MAXPLAYERS + 1]; // Clients in Redie that have Bhop Enabled.
 bool g_bSpeedEnabled[MAXPLAYERS + 1]; // Clients in Redie with unlimited speed enabled (sv_enablebunnyhopping)
 bool g_bNoclipEnabled[MAXPLAYERS + 1]; // Cients in Redie with noclip enabled
@@ -38,8 +44,7 @@ int g_iCoolDownTimer = 5; // How long, in seconds, should the cooldown between r
 
 int g_iLastButtons[MAXPLAYERS + 1]; // Last used button (+use, +reload etc) for players in Redie. - Used for noclip
 
-char g_sMapName[32];
-
+char g_sMapName[32]; // Clouds rotating block fix
 
 // Natives
 public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
@@ -71,6 +76,11 @@ public void OnPluginStart()
 		SetFailState("This plugin is for CS:GO/CSS only.");
 	}
 	
+	g_hViewPlayers = RegClientCookie("redie_viewplayers", "", CookieAccess_Private);
+	g_hRedieBanned = RegClientCookie("redie_banned", "", CookieAccess_Private);
+	
+	LoadTranslations("common.phrases.txt");
+	
 	HookEvent("round_start", Event_PreRoundStart, EventHookMode_Pre);
 	HookEvent("round_end", Event_PreRoundEnd, EventHookMode_Pre);
 	HookEvent("player_death", Event_PrePlayerDeath, EventHookMode_Pre);
@@ -97,16 +107,41 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_redie", CMD_Redie, "Respawn as a ghost.");
 	RegConsoleCmd("sm_unredie", CMD_Unredie, "Return to spectator.");
 	RegConsoleCmd("sm_rmenu", CMD_RedieMenu, "Display Redie menu.");
+	RegAdminCmd("sm_inredie", CMD_InRedie, ADMFLAG_KICK, "Returns if player is in Redie, also used for Redie Admin Menu");
 	
 	for (int i = 0; i <= MaxClients; i++)
 	if (IsValidClient(i))
 		OnClientPutInServer(i);
 }
 
+public void OnClientCookiesCached(int client)
+{
+	char buffer[12];
+	
+	GetClientCookie(client, g_hRedieBanned, buffer, sizeof(buffer));
+	if (StrEqual(buffer, ""))
+	{
+		SetClientCookie(client, g_hRedieBanned, "0");
+	}
+	
+	GetClientCookie(client, g_hViewPlayers, buffer, sizeof(buffer));
+	if (StrEqual(buffer, ""))
+	{
+		SetClientCookie(client, g_hViewPlayers, "1");
+	}
+}
+
 public void OnMapStart()
 {
 	GetCurrentMap(g_sMapName, sizeof(g_sMapName));
+	
 	PrecacheModel("models/props/cs_militia/bottle02.mdl");
+	PrecacheModel("models/playpark/ghost.mdl");
+	AddFileToDownloadsTable("models/playpark/ghost.mdl");
+	AddFileToDownloadsTable("models/playpark/ghost.vvd");
+	AddFileToDownloadsTable("models/playpark/ghost.dx90.vtx");
+	AddFileToDownloadsTable("materials/playpark/ghost/ghost.vtf");
+	AddFileToDownloadsTable("materials/playpark/ghost/ghost.vmt");
 }
 
 public void OnClientPutInServer(int client)
@@ -115,6 +150,7 @@ public void OnClientPutInServer(int client)
 	{
 		g_iLastUsedCommand[client] = 0;
 		g_bInRedie[client] = false;
+		g_bBlockSounds[client] = false;
 		g_bBhopEnabled[client] = false;
 		g_bSpeedEnabled[client] = false;
 		g_bNoclipEnabled[client] = false;
@@ -159,50 +195,68 @@ public Action CMD_Redie(int client, int args)
 		return Plugin_Handled;
 	}
 	
-	if (IsValidClient(client))
+	if (AreClientCookiesCached(client))
 	{
-		if (!g_bRedieBlocked)
+		char sRedieBanned[12];
+		GetClientCookie(client, g_hRedieBanned, sRedieBanned, sizeof(sRedieBanned));
+		
+		if (!StringToInt(sRedieBanned))
 		{
-			if (!GameRules_GetProp("m_bWarmupPeriod"))
+			if (IsValidClient(client))
 			{
-				if (!IsPlayerAlive(client))
+				if (!g_bRedieBlocked)
 				{
-					
-					int time = GetTime();
-					if (time - g_iLastUsedCommand[client] < g_iCoolDownTimer)
+					if (!GameRules_GetProp("m_bWarmupPeriod"))
 					{
-						ReplyToCommand(client, "%s Too many commands issued! Please wait %i seconds before using that command again.", REDIE_PREFIX, g_iCoolDownTimer - (time - g_iLastUsedCommand[client]));
-						return Plugin_Handled;
+						if (!IsPlayerAlive(client))
+						{
+							int time = GetTime();
+							if (time - g_iLastUsedCommand[client] < g_iCoolDownTimer)
+							{
+								ReplyToCommand(client, "%s Too many commands issued! Please wait %i seconds before using that command again.", REDIE_PREFIX, g_iCoolDownTimer - (time - g_iLastUsedCommand[client]));
+								return Plugin_Handled;
+							}
+							else
+							{
+								Redie(client);
+								ShowRedieMenu(client);
+								g_iLastUsedCommand[client] = time;
+								return Plugin_Handled;
+							}
+						}
+						else
+						{
+							ReplyToCommand(client, "%s You must be dead in order to use Redie.", REDIE_PREFIX);
+							return Plugin_Handled;
+						}
 					}
 					else
 					{
-						Redie(client);
-						ShowRedieMenu(client);
-						g_iLastUsedCommand[client] = time;
+						ReplyToCommand(client, "%s Redie is disabled during warmup.", REDIE_PREFIX);
 						return Plugin_Handled;
 					}
 				}
 				else
 				{
-					ReplyToCommand(client, "%s You must be dead in order to use Redie.", REDIE_PREFIX);
+					ReplyToCommand(client, "%s Please wait for the round to begin.", REDIE_PREFIX);
 					return Plugin_Handled;
 				}
 			}
 			else
 			{
-				ReplyToCommand(client, "%s Redie is disabled during warmup.", REDIE_PREFIX);
+				ReplyToCommand(client, "%s You must be a valid client in order to use Redie.", REDIE_PREFIX);
 				return Plugin_Handled;
 			}
 		}
 		else
 		{
-			ReplyToCommand(client, "%s Please wait for the round to begin.", REDIE_PREFIX);
+			ReplyToCommand(client, "%s You are currently banned from using Redie!", REDIE_PREFIX);
 			return Plugin_Handled;
 		}
 	}
 	else
 	{
-		ReplyToCommand(client, "%s You must be a valid client in order to use Redie.", REDIE_PREFIX);
+		ReplyToCommand(client, "%s Client preferences haven't loaded yet! Try again.", REDIE_PREFIX);
 		return Plugin_Handled;
 	}
 }
@@ -259,6 +313,79 @@ public Action CMD_RedieMenu(int client, int args)
 	return Plugin_Handled;
 }
 
+public Action CMD_InRedie(int client, int args)
+{
+	if (args != 1)
+	{
+		Menu menu = new Menu(InRedieMenuHandler);
+		menu.SetTitle("Players in Redie");
+		
+		for (int i = 0; i <= MaxClients; i++)
+		{
+			if (g_bInRedie[i])
+			{
+				char index[16], name[32];
+				IntToString(i, index, sizeof(index));
+				GetClientName(i, name, sizeof(name));
+				
+				menu.AddItem(index, name);
+			}
+		}
+		
+		menu.Display(client, MENU_TIME_FOREVER);
+		return Plugin_Handled;
+	}
+	
+	char arg[32];
+	GetCmdArg(1, arg, sizeof(arg));
+	
+	int target = FindTarget(0, arg);
+	
+	if (target == -1)
+	{
+		ReplyToCommand(client, "%s Player %s was not found.", REDIE_PREFIX, arg);
+	}
+	else
+	{
+		if (g_bInRedie[target])
+		{
+			ShowRedieAdminMenu(client, target);
+			ReplyToCommand(client, "%s Player %N IS in Redie.", REDIE_PREFIX, target);
+		}
+		else
+		{
+			ReplyToCommand(client, "%s Player %N is NOT in Redie.", REDIE_PREFIX, target);
+			
+			char name[64];
+			GetClientName(target, name, sizeof(name));
+			
+			Menu menu = new Menu(RedieAdminMenuHandler);
+			
+			if (AreClientCookiesCached(client))
+			{
+				char sRedieBanned[12];
+				GetClientCookie(target, g_hRedieBanned, sRedieBanned, sizeof(sRedieBanned));
+				
+				if (StringToInt(sRedieBanned))
+				{
+					menu.AddItem("mapban", "Unban player from Redie");
+					Format(name, sizeof(name), "Player: %s (%i) [BANNED]", name, GetClientUserId(target));
+				}
+				else
+				{
+					menu.AddItem("mapban", "Ban player from Redie");
+					Format(name, sizeof(name), "Player: %s (%i)", name, GetClientUserId(target));
+				}
+			}
+			
+			menu.SetTitle(name);
+			menu.Display(client, MENU_TIME_FOREVER);
+		}
+		
+	}
+	
+	return Plugin_Handled;
+}
 
 // Events
 public Action Event_PrePlayerDeath(Event event, const char[] name, bool dontBroadcast)
@@ -316,8 +443,7 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
 
 public Action OnNormalSoundPlayed(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch, int &flags)
 {
-	if (IsValidClient(entity))
-		if (entity && entity <= MaxClients && g_bInRedie[entity])
+	if (IsValidClient(entity) && g_bBlockSounds[entity])
 		return Plugin_Handled;
 	
 	return Plugin_Continue;
@@ -362,8 +488,10 @@ public Action Timer_ResetValue(Handle timer, any userid)
 {
 	int client = GetClientOfUserId(userid);
 	g_bInRedie[client] = false;
+	g_bBlockSounds[client] = false;
 	return Plugin_Stop;
 }
+
 
 public Action Timer_RedieAdvert(Handle timer)
 {
@@ -377,15 +505,23 @@ public Action Timer_RedieAdvert(Handle timer)
 // SDKHooks
 public Action Hook_SetTransmit_Prop(int entity, int client)
 {
-	if (entity >= 1)
+	// Hide yourself and also hide from players that are not in Redie.
+	if (g_iRedieProp[client] == entity || !g_bInRedie[client])
 	{
-		char buffer[32];
-		GetEntityClassname(g_iRedieProp[client], buffer, sizeof(buffer));
-		// Hide the fake playermodel from youself, but still view other people's playermodel in Redie.
-		if (g_iRedieProp[client] == entity && strcmp(buffer, "prop_dynamic") == 0 && entity >= 1)
+		return Plugin_Handled;
+	}
+	
+	if (AreClientCookiesCached(client))
+	{
+		char sViewPlayers[12];
+		GetClientCookie(client, g_hViewPlayers, sViewPlayers, sizeof(sViewPlayers));
+		
+		// Hide other Redie players if View Players is set to false.
+		if (g_bInRedie[client] && !StringToInt(sViewPlayers) && entity > 1)
 		{
 			return Plugin_Handled;
 		}
+		
 	}
 	
 	return Plugin_Continue;
@@ -499,11 +635,12 @@ public Action Hook_WeaponCanUse(int client, int weapon)
 // Redie Functions
 public void Redie(int client)
 {
+	g_bBlockSounds[client] = true;
 	g_bInRedie[client] = false; // This is done so the player can pick up their spawned weapons to remove them.
 	CS_RespawnPlayer(client);
 	g_bInRedie[client] = true;
 	
-	// Remove Weapons
+	// Remove spawned in weapons
 	int weaponIndex;
 	for (int i = 0; i <= 5; i++)
 	{
@@ -514,7 +651,6 @@ public void Redie(int client)
 		}
 	}
 	
-	// Give player autobhop (if enabled)
 	if (g_cRedieBhop.BoolValue)
 	{
 		g_bBhopEnabled[client] = true;
@@ -526,7 +662,6 @@ public void Redie(int client)
 		SendConVarValue(client, sv_autobunnyhopping, "0");
 	}
 	
-	// Remove player's fake playermodel if it exists
 	if (IsValidEdict(g_iRedieProp[client]) && g_iRedieProp[client] >= 1)
 		AcceptEntityInput(g_iRedieProp[client], "Kill");
 	
@@ -536,27 +671,28 @@ public void Redie(int client)
 		g_iRedieProp[client] = CreateEntityByName("prop_dynamic");
 		if (IsValidEdict(g_iRedieProp[client]))
 		{
-			float pos[3], angles[3];
 			char model[PLATFORM_MAX_PATH], skin[2];
 			
 			GetClientModel(client, model, sizeof(model));
-			GetClientAbsOrigin(client, pos);
-			GetClientAbsAngles(client, angles);
 			
 			IntToString(GetEntProp(client, Prop_Send, "m_nSkin"), skin, sizeof(skin));
-			DispatchKeyValue(g_iRedieProp[client], "skin", skin);
-			DispatchKeyValue(g_iRedieProp[client], "model", model);
+			DispatchKeyValue(g_iRedieProp[client], "model", "models/playpark/ghost.mdl");
 			
 			if (DispatchSpawn(g_iRedieProp[client]))
 			{
 				SetEntProp(g_iRedieProp[client], Prop_Send, "m_CollisionGroup", 1);
 				SetEntProp(g_iRedieProp[client], Prop_Send, "m_nSolidType", 0);
-				SetEntityRenderMode(g_iRedieProp[client], RENDER_TRANSALPHA);
-				SetEntityRenderColor(g_iRedieProp[client], _, _, _, 150);
+				
+				/*float pos[3], angles[3];
+				GetClientAbsOrigin(client, pos);
+				GetClientEyeAngles(client, angles);
+				pos[2] += -15.0;
+				
 				TeleportEntity(g_iRedieProp[client], pos, angles, NULL_VECTOR);
 				
 				SetVariantString("!activator");
-				AcceptEntityInput(g_iRedieProp[client], "SetParent", client, g_iRedieProp[client], 0);
+				AcceptEntityInput(g_iRedieProp[client], "SetParent", client, g_iRedieProp[client], 0);*/
+				
 				SDKHook(g_iRedieProp[client], SDKHook_SetTransmit, Hook_SetTransmit_Prop);
 			}
 		}
@@ -572,19 +708,43 @@ public void Redie(int client)
 	ReplyToCommand(client, "%s Respawned as a ghost.", REDIE_PREFIX);
 }
 
-public void Unredie(int client)
+public void OnGameFrame()
 {
-	SetEntProp(client, Prop_Send, "m_lifeState", 0);
-	SetEntProp(client, Prop_Data, "m_iFrags", GetClientFrags(client) + 1);
-	SetEntProp(client, Prop_Data, "m_iDeaths", GetClientDeaths(client) - 1);
-	ForcePlayerSuicide(client);
-	
-	if (IsValidEdict(g_iRedieProp[client]))
-		AcceptEntityInput(g_iRedieProp[client], "Kill");
-	
-	ReplyToCommand(client, "%s Returned to spectator.", REDIE_PREFIX);
+	// Using this temporarily because SetParent would not respect rotation
+	for (int i = 0; i <= MaxClients; i++)
+	{
+		if (g_bInRedie[i] && IsValidEdict(g_iRedieProp[i]))
+		{
+			float angles[3], pos[3];
+			GetClientAbsOrigin(i, pos);
+			GetClientEyeAngles(i, angles);
+			
+			pos[2] += -15.0;
+			angles[0] = 0.0;
+			
+			TeleportEntity(g_iRedieProp[i], pos, angles, NULL_VECTOR);
+		}
+	}
 }
 
+public void Unredie(int client)
+{
+	if (g_bInRedie[client])
+	{
+		SetEntProp(client, Prop_Send, "m_lifeState", 0);
+		SetEntProp(client, Prop_Data, "m_iFrags", GetClientFrags(client) + 1);
+		SetEntProp(client, Prop_Data, "m_iDeaths", GetClientDeaths(client) - 1);
+		ForcePlayerSuicide(client);
+		
+		if (IsValidEdict(g_iRedieProp[client]))
+			AcceptEntityInput(g_iRedieProp[client], "Kill");
+		
+		PrintToChat(client, "%s Returned to spectator.", REDIE_PREFIX);
+	}
+}
+
+
+// Menu Handlers
 public int RedieMenuHandler(Menu menu, MenuAction action, int param1, int param2)
 {
 	if (action == MenuAction_Select)
@@ -671,6 +831,29 @@ public int RedieMenuHandler(Menu menu, MenuAction action, int param1, int param2
 						}
 					}
 				}
+				case 6:
+				{
+					if (AreClientCookiesCached(param1))
+					{
+						char sViewPlayers[12];
+						GetClientCookie(param1, g_hViewPlayers, sViewPlayers, sizeof(sViewPlayers));
+						
+						if (StringToInt(sViewPlayers))
+						{
+							SetClientCookie(param1, g_hViewPlayers, "0");
+							PrintToChat(param1, "%s Other players in Redie are now hidden!", REDIE_PREFIX);
+						}
+						else
+						{
+							SetClientCookie(param1, g_hViewPlayers, "1");
+							PrintToChat(param1, "%s Other players in Redie are now unhidden!", REDIE_PREFIX);
+						}
+					}
+					else
+					{
+						PrintToChat(param1, "%s You're settings haven't loaded yet. Try again.", REDIE_PREFIX);
+					}
+				}
 				case 9:
 				{
 					return;
@@ -681,6 +864,90 @@ public int RedieMenuHandler(Menu menu, MenuAction action, int param1, int param2
 		else
 		{
 			delete menu;
+		}
+	}
+	else if (action == MenuAction_End)
+	{
+		delete menu;
+	}
+}
+
+public int InRedieMenuHandler(Menu menu, MenuAction action, int param1, int param2)
+{
+	if (action == MenuAction_Select)
+	{
+		char info[32];
+		menu.GetItem(param2, info, sizeof(info));
+		
+		int player = StringToInt(info);
+		if (IsValidClient(player))
+			ShowRedieAdminMenu(param1, player);
+	}
+	else if (action == MenuAction_End)
+	{
+		delete menu;
+	}
+}
+
+public int RedieAdminMenuHandler(Menu menu, MenuAction action, int param1, int param2)
+{
+	if (action == MenuAction_Select)
+	{
+		char info[32], title[64];
+		menu.GetItem(param2, info, sizeof(info));
+		menu.GetTitle(title, sizeof(title));
+		
+		Regex regex = new Regex("\\((.*)\\)");
+		
+		if (regex.Match(title) > 0)
+		{
+			char buffer[128];
+			regex.GetSubString(1, buffer, sizeof(buffer));
+			
+			int player = GetClientOfUserId(StringToInt(buffer));
+			
+			if (StrEqual(info, "teleport"))
+			{
+				float location[3];
+				GetClientAbsOrigin(player, location);
+				TeleportEntity(param1, location, NULL_VECTOR, NULL_VECTOR);
+				PrintToChat(param1, "%s Teleported to %N", REDIE_PREFIX, player);
+				ShowRedieAdminMenu(param1, player);
+			}
+			else if (StrEqual(info, "unredie"))
+			{
+				Unredie(player);
+				PrintToChatAll("%s %N Forced Unredie on %N", REDIE_PREFIX, param1, player);
+			}
+			
+			else if (StrEqual(info, "mapban"))
+			{
+				if (AreClientCookiesCached(param1))
+				{
+					char sRedieBanned[12];
+					GetClientCookie(player, g_hRedieBanned, sRedieBanned, sizeof(sRedieBanned));
+					
+					if (StringToInt(sRedieBanned))
+					{
+						SetClientCookie(player, g_hRedieBanned, "0");
+						PrintToChatAll("%s %N Unbanned player %N from Redie!", REDIE_PREFIX, param1, player);
+					}
+					else
+					{
+						Unredie(player);
+						SetClientCookie(player, g_hRedieBanned, "1");
+						PrintToChatAll("%s %N Banned player %N from Redie!", REDIE_PREFIX, param1, player);
+					}
+				}
+				else
+				{
+					PrintToChat(param1, "%s Client preferences haven't loaded yet! Try again.", REDIE_PREFIX);
+				}
+			}
+		}
+		else
+		{
+			PrintToChat(param1, "%s Fatal Regex error. Please try again.", REDIE_PREFIX);
 		}
 	}
 	else if (action == MenuAction_End)
@@ -734,7 +1001,17 @@ public void ShowRedieMenu(int client)
 		panel.DrawItem("[X] Speed", ITEMDRAW_DISABLED);
 	}
 	
-	panel.DrawItem("", ITEMDRAW_NOTEXT);
+	if (AreClientCookiesCached(client))
+	{
+		char sViewPlayers[12];
+		GetClientCookie(client, g_hViewPlayers, sViewPlayers, sizeof(sViewPlayers));
+		
+		if (StringToInt(sViewPlayers))
+			panel.DrawItem("[✔] View Players");
+		else
+			panel.DrawItem("[X] View Players");
+	}
+	
 	panel.DrawItem("", ITEMDRAW_NOTEXT);
 	panel.DrawItem("", ITEMDRAW_NOTEXT);
 	panel.DrawText(" ");
@@ -742,7 +1019,37 @@ public void ShowRedieMenu(int client)
 	panel.DrawItem("Exit");
 	panel.Send(client, RedieMenuHandler, MENU_TIME_FOREVER);
 	delete panel;
+}
+
+public void ShowRedieAdminMenu(int client, int player)
+{
+	char name[64];
+	GetClientName(player, name, sizeof(name));
 	
+	Menu menu = new Menu(RedieAdminMenuHandler);
+	menu.AddItem("teleport", "Teleport to Player");
+	menu.AddItem("unredie", "Unredie Player");
+	
+	if (AreClientCookiesCached(client))
+	{
+		char sRedieBanned[12];
+		GetClientCookie(player, g_hRedieBanned, sRedieBanned, sizeof(sRedieBanned));
+		
+		if (StringToInt(sRedieBanned))
+		{
+			Format(name, sizeof(name), "Player: %s (%i) [BANNED]", name, GetClientUserId(player));
+			menu.SetTitle(name);
+			menu.AddItem("mapban", "Unban player from Redie");
+		}
+		else
+		{
+			Format(name, sizeof(name), "Player: %s (%i)", name, GetClientUserId(player));
+			menu.SetTitle(name);
+			menu.AddItem("mapban", "Ban player from Redie");
+		}
+	}
+	
+	menu.Display(client, MENU_TIME_FOREVER);
 }
 
 public Action OnPlayerRunCmd(int client, int & buttons, int & impulse, float vel[3], float angles[3], int & weapon, int & subtype, int & cmdnum, int & tickcount, int & seed, int mouse[2])
@@ -784,4 +1091,4 @@ stock bool IsValidClient(int client)
 	if (IsFakeClient(client))return false;
 	if (IsClientSourceTV(client))return false;
 	return IsClientInGame(client);
-} 
+}
