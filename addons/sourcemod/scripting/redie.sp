@@ -23,6 +23,7 @@ ConVar g_cRedieBhop; // Set whether to allow/disallow autobhop in Redie.
 ConVar g_cRedieSpeed; // Set whether to allow/disallow unlimited speed in Redie.
 ConVar g_cRedieNoclip; // Set whether to allow/disallow unlimited noclip in Redie.
 ConVar g_cRedieModel; // Set whether to create a fake playermodel for players in Redie. (So players can see eachother)
+ConVar g_cRedieCustomModel; // Set whether to use a custom model from server's FastDL or use the player's current model/skin
 ConVar g_cRedieAdverts; // Set to enable/disable Redie adverts.
 ConVar sv_autobunnyhopping; // sv_autobunnyhopping replicated ConVar for autobhop in Redie
 ConVar sv_enablebunnyhopping; // Used for unlimited speed when bhopping
@@ -97,6 +98,7 @@ public void OnPluginStart()
 	g_cRedieSpeed = CreateConVar("sm_redie_speed", "1", "Set whether to allow players in Redie to use unlimited speed (sv_enablebunnyhopping)");
 	g_cRedieNoclip = CreateConVar("sm_redie_noclip", "1", "Set whether to allow players in Redie to noclip");
 	g_cRedieModel = CreateConVar("sm_redie_model", "0", "Set whether to spawn a fake playermodel so players in Redie can see eachother");
+	g_cRedieCustomModel = CreateConVar("sm_redie_custom_model", "1", "Set whether to use a custom or default playermodel for ghosts in Redie.");
 	g_cRedieAdverts = CreateConVar("sm_redie_adverts", "1", "Set whether to enable or disable Redie adverts (2 min interval).");
 	
 	sv_autobunnyhopping = FindConVar("sv_autobunnyhopping");
@@ -675,13 +677,17 @@ public void Redie(int client)
 		g_iRedieProp[client] = CreateEntityByName("prop_dynamic");
 		if (IsValidEdict(g_iRedieProp[client]))
 		{
-			char model[PLATFORM_MAX_PATH], skin[2];
-			
-			GetClientModel(client, model, sizeof(model));
-			
-			IntToString(GetEntProp(client, Prop_Send, "m_nSkin"), skin, sizeof(skin));
-			DispatchKeyValue(g_iRedieProp[client], "model", "models/playpark/ghost.mdl");
-			
+			if (g_cRedieCustomModel.BoolValue)
+			{
+				DispatchKeyValue(g_iRedieProp[client], "model", "models/playpark/ghost.mdl");
+			}
+			else
+			{
+				char model[PLATFORM_MAX_PATH];
+				GetClientModel(client, model, sizeof(model));
+				DispatchKeyValue(g_iRedieProp[client], "model", model);
+			}
+				
 			if (DispatchSpawn(g_iRedieProp[client]))
 			{
 				SetEntProp(g_iRedieProp[client], Prop_Send, "m_CollisionGroup", 1);
@@ -715,18 +721,23 @@ public void Redie(int client)
 public void OnGameFrame()
 {
 	// Using this temporarily because SetParent would not respect rotation
-	for (int i = 0; i <= MaxClients; i++)
+	if (g_cRedieModel.BoolValue)
 	{
-		if (g_bInRedie[i] && IsValidEdict(g_iRedieProp[i]))
+		for (int i = 0; i <= MaxClients; i++)
 		{
-			float angles[3], pos[3];
-			GetClientAbsOrigin(i, pos);
-			GetClientEyeAngles(i, angles);
-			
-			pos[2] += -15.0;
-			angles[0] = 0.0;
-			
-			TeleportEntity(g_iRedieProp[i], pos, angles, NULL_VECTOR);
+			if (g_bInRedie[i] && IsValidEdict(g_iRedieProp[i]))
+			{
+				float angles[3], pos[3];
+				GetClientAbsOrigin(i, pos);
+				GetClientEyeAngles(i, angles);
+				
+				if (g_cRedieCustomModel.BoolValue)
+					pos[2] += -15.0;
+				
+				angles[0] = 0.0;
+				
+				TeleportEntity(g_iRedieProp[i], pos, angles, NULL_VECTOR);
+			}
 		}
 	}
 }
@@ -1021,7 +1032,7 @@ public void ShowRedieMenu(int client)
 		{
 			panel.DrawItem("", ITEMDRAW_NOTEXT);
 		}
-			
+		
 	}
 	
 	panel.DrawItem("", ITEMDRAW_NOTEXT);
@@ -1103,4 +1114,4 @@ stock bool IsValidClient(int client)
 	if (IsFakeClient(client))return false;
 	if (IsClientSourceTV(client))return false;
 	return IsClientInGame(client);
-}
+} 
