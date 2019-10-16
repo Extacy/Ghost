@@ -96,7 +96,7 @@ public void OnPluginStart()
 	g_cRedieBhop = CreateConVar("sm_redie_bhop", "1", "Set whether to enable or disable autobhop in Redie.");
 	g_cRedieSpeed = CreateConVar("sm_redie_speed", "1", "Set whether to allow players in Redie to use unlimited speed (sv_enablebunnyhopping)");
 	g_cRedieNoclip = CreateConVar("sm_redie_noclip", "1", "Set whether to allow players in Redie to noclip");
-	g_cRedieModel = CreateConVar("sm_redie_model", "1", "Set whether to spawn a fake playermodel so players in Redie can see eachother");
+	g_cRedieModel = CreateConVar("sm_redie_model", "0", "Set whether to spawn a fake playermodel so players in Redie can see eachother");
 	g_cRedieAdverts = CreateConVar("sm_redie_adverts", "1", "Set whether to enable or disable Redie adverts (2 min interval).");
 	
 	sv_autobunnyhopping = FindConVar("sv_autobunnyhopping");
@@ -136,12 +136,16 @@ public void OnMapStart()
 	GetCurrentMap(g_sMapName, sizeof(g_sMapName));
 	
 	PrecacheModel("models/props/cs_militia/bottle02.mdl");
-	PrecacheModel("models/playpark/ghost.mdl");
-	AddFileToDownloadsTable("models/playpark/ghost.mdl");
-	AddFileToDownloadsTable("models/playpark/ghost.vvd");
-	AddFileToDownloadsTable("models/playpark/ghost.dx90.vtx");
-	AddFileToDownloadsTable("materials/playpark/ghost/ghost.vtf");
-	AddFileToDownloadsTable("materials/playpark/ghost/ghost.vmt");
+	
+	if (g_cRedieModel.BoolValue)
+	{
+		PrecacheModel("models/playpark/ghost.mdl");
+		AddFileToDownloadsTable("models/playpark/ghost.mdl");
+		AddFileToDownloadsTable("models/playpark/ghost.vvd");
+		AddFileToDownloadsTable("models/playpark/ghost.dx90.vtx");
+		AddFileToDownloadsTable("materials/playpark/ghost/ghost.vtf");
+		AddFileToDownloadsTable("materials/playpark/ghost/ghost.vmt");
+	}
 }
 
 public void OnClientPutInServer(int client)
@@ -1006,10 +1010,18 @@ public void ShowRedieMenu(int client)
 		char sViewPlayers[12];
 		GetClientCookie(client, g_hViewPlayers, sViewPlayers, sizeof(sViewPlayers));
 		
-		if (StringToInt(sViewPlayers))
-			panel.DrawItem("[✔] View Players");
+		if (g_cRedieModel.BoolValue)
+		{
+			if (StringToInt(sViewPlayers))
+				panel.DrawItem("[✔] View Players");
+			else
+				panel.DrawItem("[X] View Players");
+		}
 		else
-			panel.DrawItem("[X] View Players");
+		{
+			panel.DrawItem("", ITEMDRAW_NOTEXT);
+		}
+			
 	}
 	
 	panel.DrawItem("", ITEMDRAW_NOTEXT);
