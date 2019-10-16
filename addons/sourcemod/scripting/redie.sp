@@ -36,14 +36,13 @@ bool g_bSpeedEnabled[MAXPLAYERS + 1]; // Clients in Redie with unlimited speed e
 bool g_bNoclipEnabled[MAXPLAYERS + 1]; // Cients in Redie with noclip enabled
 bool g_bRedieBlocked; // Disable the use of redie during freezetime and when the round is about to end.
 
-float g_fSaveLocation[MAXPLAYERS + 1][3]; // Save position for Redie
 
 int g_iRedieProp[MAXPLAYERS + 1]; // Array of prop_dynamic for each player in redie
-
 int g_iLastUsedCommand[MAXPLAYERS + 1]; // Array of clients and the time they last used a Redie command. (Used for cooldown.)
 int g_iCoolDownTimer = 5; // How long, in seconds, should the cooldown between redie commands be
-
 int g_iLastButtons[MAXPLAYERS + 1]; // Last used button (+use, +reload etc) for players in Redie. - Used for noclip
+
+float g_fSaveLocation[MAXPLAYERS + 1][3]; // Save position for Redie
 
 char g_sMapName[32]; // Clouds rotating block fix
 
@@ -185,9 +184,6 @@ public void OnEntityCreated(int entity, const char[] classname)
 	if (StrEqual(classname, "func_rotating") && StrEqual(g_sMapName, "jb_clouds_final5"))
 	{
 		SetEntProp(entity, Prop_Send, "m_usSolidFlags", 4);
-		//SDKHookEx(entity, SDKHook_EndTouch, TeleportOnTouch);
-		//SDKHookEx(entity, SDKHook_StartTouch, TeleportOnTouch);
-		//SDKHookEx(entity, SDKHook_Touch, TeleportOnTouch);
 	}
 }
 
@@ -576,22 +572,6 @@ public Action FakeTriggerTeleport(int entity, int client)
 				break;
 			}
 		}
-		return Plugin_Handled;
-	}
-	return Plugin_Continue;
-}
-
-public Action TeleportOnTouch(int entity, int client)
-{
-	if (client && client <= MaxClients && g_bInRedie[client])
-	{
-		float position[3];
-		GetClientAbsOrigin(client, position);
-		position[0] += 15;
-		position[2] += 5;
-		TeleportEntity(client, position, NULL_VECTOR, NULL_VECTOR);
-		//SetEntityMoveType(client, MOVETYPE_NOCLIP);
-		PrintToChat(client, "%s You were teleported for touching a func_rotating!", REDIE_PREFIX);
 		return Plugin_Handled;
 	}
 	return Plugin_Continue;
