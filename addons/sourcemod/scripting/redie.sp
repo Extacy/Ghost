@@ -90,7 +90,7 @@ public void OnPluginStart()
 	
 	CreateTimer(120.0, Timer_RedieAdvert, _, TIMER_REPEAT);
 	
-	SetConVarInt(FindConVar("mp_playercashawards"), 0, false, false); // Used to disable enemy compensation message when someone uses unredie. 
+	HookUserMessage(GetUserMessageId("TextMsg"), RemoveCashRewardMessage, true);
 	
 	g_cRedieEnabled = CreateConVar("sm_redie_enabled", "1", "Set whether or not Redie is enabled on the server.");
 	g_cRedieBhop = CreateConVar("sm_redie_bhop", "1", "Set whether to enable or disable autobhop in Redie.");
@@ -187,6 +187,20 @@ public void OnEntityCreated(int entity, const char[] classname)
 	}
 }
 
+public Action RemoveCashRewardMessage(UserMsg msg_id, BfRead msg, const int[] players, int playersNum, bool reliable, bool init)
+{
+	char buffer[64];
+	PbReadString(msg, "params", buffer, sizeof(buffer), 0);
+	
+	if (StrEqual(buffer, "#Player_Cash_Award_ExplainSuicide_YouGotCash") ||
+		StrEqual(buffer, "#Player_Cash_Award_ExplainSuicide_TeammateGotCash") ||
+		StrEqual(buffer, "#Player_Cash_Award_ExplainSuicide_EnemyGotCash"))
+	{
+		return Plugin_Handled;
+	}
+	
+	return Plugin_Continue;
+}
 
 // Commands
 public Action CMD_Redie(int client, int args)
@@ -648,8 +662,11 @@ public void Redie(int client)
 		SendConVarValue(client, sv_autobunnyhopping, "0");
 	}
 	
-	if (IsValidEdict(g_iRedieProp[client]) && g_iRedieProp[client] >= 1)
+	if (IsValidEdict(g_iRedieProp[client]) && g_iRedieProp[client] > 0)
+	{
 		AcceptEntityInput(g_iRedieProp[client], "Kill");
+		g_iRedieProp[client] = -1;
+	}
 	
 	// Create a fake playermodel so players in Redie can see each other.
 	if (g_cRedieModel.BoolValue)
@@ -667,7 +684,7 @@ public void Redie(int client)
 				GetClientModel(client, model, sizeof(model));
 				DispatchKeyValue(g_iRedieProp[client], "model", model);
 			}
-				
+			
 			if (DispatchSpawn(g_iRedieProp[client]))
 			{
 				SetEntProp(g_iRedieProp[client], Prop_Send, "m_CollisionGroup", 1);
@@ -731,8 +748,11 @@ public void Unredie(int client)
 		SetEntProp(client, Prop_Data, "m_iDeaths", GetClientDeaths(client) - 1);
 		ForcePlayerSuicide(client);
 		
-		if (IsValidEdict(g_iRedieProp[client]))
+		if (IsValidEdict(g_iRedieProp[client]) && g_iRedieProp[client] > 0)
+		{
 			AcceptEntityInput(g_iRedieProp[client], "Kill");
+			g_iRedieProp[client] = -1;
+		}
 		
 		PrintToChat(client, "%s Returned to spectator.", REDIE_PREFIX);
 	}
