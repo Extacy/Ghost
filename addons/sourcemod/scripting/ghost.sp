@@ -436,16 +436,14 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
 	int client = GetClientOfUserId(event.GetInt("userid"));
 	if (IsValidClient(client))
 	{
-		if (!g_bIsGhost[client])
-		{
-			g_bBhopEnabled[client] = false;
-			g_bSpeedEnabled[client] = false;
-			g_bNoclipEnabled[client] = false;
-			if (g_cGhostBhop.BoolValue)
-				SendConVarValue(client, sv_autobunnyhopping, "0");
-			if (g_cGhostSpeed.BoolValue)
-				SendConVarValue(client, sv_enablebunnyhopping, "0");
-		}
+		g_bIsGhost[client] = false;
+		g_bBhopEnabled[client] = false;
+		g_bSpeedEnabled[client] = false;
+		g_bNoclipEnabled[client] = false;
+		if (g_cGhostBhop.BoolValue)
+			SendConVarValue(client, sv_autobunnyhopping, "0");
+		if (g_cGhostSpeed.BoolValue)
+			SendConVarValue(client, sv_enablebunnyhopping, "0");
 		
 		SDKHook(client, SDKHook_SetTransmit, Hook_SetTransmit_Player);
 	}
