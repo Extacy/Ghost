@@ -8,12 +8,10 @@ alt="Redie Test Video" width="240" height="180" border="10" /></a>
 * Noclip
 * Autobhop
 * Unlimited speed
-* View other ghosts
 * Working Unghost / Unredie
 * Working trigger_teleports
 * Players have access to a menu to toggle their own settings as a ghost. [\[IMG\]](https://i.imgur.com/AcEPss2.png)
 * Admins have the ability to see who is a Ghost and to teleport to them, force them to return to spectator, or ban them from using Ghost. [\[IMG\]](https://i.imgur.com/1m2JqeY.png)
-* Players can see each other as ghosts. (disabled by default) [\[IMG\]](https://i.imgur.com/1pHKv3E.png)
 
 ## Commands
 * sm_ghost / sm_redie -> Turn into a ghost after you die
@@ -25,8 +23,6 @@ alt="Redie Test Video" width="240" height="180" border="10" /></a>
 * `sm_ghost_bhop 1|0 "Set whether ghosts can autobhop. (sv_autobunnyhopping)"`
 * `sm_ghost_speed 1|0 "Set whether ghosts can use unlimited speed (sv_enablebunnyhopping)"`
 * `sm_ghost_noclip 1|0 "Set whether ghosts can noclip."`
-* `sm_ghost_model 1|0 "Set whether to spawn a ghost model so players can see each other."`
-* `sm_ghost_custom_model 1|0 "Set whether to use a custom or default playermodel for Ghosts."`
 * `sm_ghost_adverts 1|0 "Set whether chat adverts are enabled."`
 * `sm_ghost_adverts_interval 120 "Interval (in seconds) of chat adverts."`
 

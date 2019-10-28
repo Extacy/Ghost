@@ -22,8 +22,6 @@ ConVar g_cPluginEnabled;
 ConVar g_cGhostBhop;
 ConVar g_cGhostSpeed;
 ConVar g_cGhostNoclip;
-ConVar g_cGhostModel;
-ConVar g_cGhostCustomModel;
 ConVar g_cChatAdverts;
 ConVar g_cChatAdvertsInterval;
 ConVar sv_autobunnyhopping;
@@ -37,7 +35,6 @@ bool g_bSpeedEnabled[MAXPLAYERS + 1]; // Ghosts with unlimited speed enabled (sv
 bool g_bNoclipEnabled[MAXPLAYERS + 1]; // Ghosts with noclip enabled
 bool g_bPluginBlocked; // Disable the use of Ghost during freezetime and when the round is about to end.
 
-int g_iGhostModel[MAXPLAYERS + 1]; // Array of prop_dynamic for each ghost
 int g_iLastUsedCommand[MAXPLAYERS + 1]; // Array of clients and the time they last used a command. (Used for cooldown.)
 int g_iCoolDownTimer = 5; // How long, in seconds, should the cooldown between commands be
 int g_iLastButtons[MAXPLAYERS + 1]; // Last used button (+use, +reload etc) for ghosts. - Used for noclip
@@ -69,8 +66,6 @@ public void OnPluginStart()
 	g_cGhostBhop = CreateConVar("sm_ghost_bhop", "1", "Set whether ghosts can autobhop.");
 	g_cGhostSpeed = CreateConVar("sm_ghost_speed", "1", "Set whether ghosts can use unlimited speed (sv_enablebunnyhopping)");
 	g_cGhostNoclip = CreateConVar("sm_ghost_noclip", "1", "Set whether ghosts can noclip.");
-	g_cGhostModel = CreateConVar("sm_ghost_model", "0", "Set whether to spawn a ghost model so players can see each other.");
-	g_cGhostCustomModel = CreateConVar("sm_ghost_custom_model", "1", "Set whether to use a custom or default playermodel for ghosts.");
 	g_cChatAdverts = CreateConVar("sm_ghost_adverts", "1", "Set whether chat adverts are enabled.");
 	g_cChatAdvertsInterval = CreateConVar("sm_ghost_adverts_interval", "120.0", "Interval (in seconds) of chat adverts.");
 	
@@ -137,16 +132,6 @@ public void OnClientCookiesCached(int client)
 public void OnMapStart()
 {
 	PrecacheModel("models/props/cs_militia/bottle02.mdl");
-	
-	if (g_cGhostModel.BoolValue)
-	{
-		PrecacheModel("models/playpark/ghost.mdl");
-		AddFileToDownloadsTable("models/playpark/ghost.mdl");
-		AddFileToDownloadsTable("models/playpark/ghost.vvd");
-		AddFileToDownloadsTable("models/playpark/ghost.dx90.vtx");
-		AddFileToDownloadsTable("materials/playpark/ghost/ghost.vtf");
-		AddFileToDownloadsTable("materials/playpark/ghost/ghost.vmt");
-	}
 }
 
 public void OnClientPutInServer(int client)
@@ -486,7 +471,6 @@ public Action Event_PreRoundEnd(Event event, const char[] name, bool dontBroadca
 		if (g_bIsGhost[i] && IsValidClient(i))
 		{
 			g_bIsGhost[i] = false;
-			g_iGhostModel[i] = -1;
 		}
 	}
 }
@@ -511,30 +495,6 @@ public Action Timer_ChatAdvert(Handle timer)
 
 
 // SDKHooks
-public Action Hook_SetTransmit_Prop(int entity, int client)
-{
-	// Hide yourself and also hide alive players
-	if (g_iGhostModel[client] == entity || !g_bIsGhost[client])
-	{
-		return Plugin_Handled;
-	}
-	
-	if (AreClientCookiesCached(client))
-	{
-		char buffer[12];
-		GetClientCookie(client, g_hViewPlayersCookie, buffer, sizeof(buffer));
-		
-		// Hide other ghosts if View Players is set to false.
-		if (g_bIsGhost[client] && !StringToInt(buffer) && entity > 1)
-		{
-			return Plugin_Handled;
-		}
-		
-	}
-	
-	return Plugin_Continue;
-}
-
 public Action Hook_SetTransmit_Player(int entity, int client)
 {
 	// View other ghosts
@@ -654,49 +614,6 @@ public void Ghost(int client)
 		SendConVarValue(client, sv_autobunnyhopping, "0");
 	}
 	
-	if (IsValidEdict(g_iGhostModel[client]) && g_iGhostModel[client] > 0)
-	{
-		AcceptEntityInput(g_iGhostModel[client], "Kill");
-		g_iGhostModel[client] = -1;
-	}
-	
-	// Create a fake playermodel so ghosts can see each other.
-	if (g_cGhostModel.BoolValue)
-	{
-		g_iGhostModel[client] = CreateEntityByName("prop_dynamic");
-		if (IsValidEdict(g_iGhostModel[client]))
-		{
-			if (g_cGhostCustomModel.BoolValue)
-			{
-				DispatchKeyValue(g_iGhostModel[client], "model", "models/playpark/ghost.mdl");
-			}
-			else
-			{
-				char model[PLATFORM_MAX_PATH];
-				GetClientModel(client, model, sizeof(model));
-				DispatchKeyValue(g_iGhostModel[client], "model", model);
-			}
-			
-			if (DispatchSpawn(g_iGhostModel[client]))
-			{
-				SetEntProp(g_iGhostModel[client], Prop_Send, "m_CollisionGroup", 1);
-				SetEntProp(g_iGhostModel[client], Prop_Send, "m_nSolidType", 0);
-				
-				/*float pos[3], angles[3];
-				GetClientAbsOrigin(client, pos);
-				GetClientEyeAngles(client, angles);
-				pos[2] += -15.0;
-				
-				TeleportEntity(g_iGhostModel[client], pos, angles, NULL_VECTOR);
-				
-				SetVariantString("!activator");
-				AcceptEntityInput(g_iGhostModel[client], "SetParent", client, g_iGhostModel[client], 0);*/
-				
-				SDKHook(g_iGhostModel[client], SDKHook_SetTransmit, Hook_SetTransmit_Prop);
-			}
-		}
-	}
-	
 	// Make player turn into a "ghost"
 	SetEntityModel(client, "models/props/cs_militia/bottle02.mdl"); // Set the playermodel to a small item in order to not block buttons, knife swings or bullets.
 	SetEntProp(client, Prop_Send, "m_lifeState", 1);
@@ -716,37 +633,7 @@ public void Unghost(int client)
 		SetEntProp(client, Prop_Data, "m_iDeaths", GetClientDeaths(client) - 1);
 		ForcePlayerSuicide(client);
 		
-		if (IsValidEdict(g_iGhostModel[client]) && g_iGhostModel[client] > 0)
-		{
-			AcceptEntityInput(g_iGhostModel[client], "Kill");
-			g_iGhostModel[client] = -1;
-		}
-		
 		PrintToChat(client, "%s Returned to \x0Fspectator\x01.", CHAT_PREFIX);
-	}
-}
-
-public void OnGameFrame()
-{
-	// Using this temporarily because SetParent would not respect rotation
-	if (g_cGhostModel.BoolValue)
-	{
-		for (int i = 0; i <= MaxClients; i++)
-		{
-			if (g_bIsGhost[i] && IsValidEdict(g_iGhostModel[i]))
-			{
-				float angles[3], pos[3];
-				GetClientAbsOrigin(i, pos);
-				GetClientEyeAngles(i, angles);
-				
-				if (g_cGhostCustomModel.BoolValue)
-					pos[2] += -15.0;
-				
-				angles[0] = 0.0;
-				
-				TeleportEntity(g_iGhostModel[i], pos, angles, NULL_VECTOR);
-			}
-		}
 	}
 }
 
@@ -1011,21 +898,9 @@ public void ShowPlayerMenu(int client)
 	{
 		char buffer[12];
 		GetClientCookie(client, g_hViewPlayersCookie, buffer, sizeof(buffer));
-		
-		if (g_cGhostModel.BoolValue)
-		{
-			if (StringToInt(buffer))
-				panel.DrawItem("[✔] View Players");
-			else
-				panel.DrawItem("[X] View Players");
-		}
-		else
-		{
-			panel.DrawItem("", ITEMDRAW_NOTEXT);
-		}
-		
 	}
 	
+	panel.DrawItem("", ITEMDRAW_NOTEXT);
 	panel.DrawItem("", ITEMDRAW_NOTEXT);
 	panel.DrawItem("", ITEMDRAW_NOTEXT);
 	panel.DrawText(" ");
