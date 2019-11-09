@@ -186,81 +186,66 @@ public Action CMD_Ghost(int client, int args)
 {
 	if (!g_cPluginEnabled.BoolValue)
 	{
-		ReplyToCommand(client, "%s \x0FGhost\x01 has been temporarily disabled on this server..", CHAT_PREFIX);
+		ReplyToCommand(client, "%s \x0FGhost\x01 has been temporarily disabled on this server.", CHAT_PREFIX);
 		return Plugin_Handled;
 	}
 	
-	if (AreClientCookiesCached(client))
-	{
-		char buffer[12];
-		GetClientCookie(client, g_hBannedCookie, buffer, sizeof(buffer));
-		
-		if (!StringToInt(buffer))
-		{
-			if (IsValidClient(client))
-			{
-				if (!g_bPluginBlocked)
-				{
-					if (!GameRules_GetProp("m_bWarmupPeriod"))
-					{
-						if (!IsPlayerAlive(client))
-						{
-							int time = GetTime();
-							if (time - g_iLastUsedCommand[client] < g_iCoolDownTimer)
-							{
-								ReplyToCommand(client, "%s Too many commands issued! Please wait \x0F%i seconds\x01 before using that command again.", CHAT_PREFIX, g_iCoolDownTimer - (time - g_iLastUsedCommand[client]));
-								return Plugin_Handled;
-							}
-							else
-							{
-								Ghost(client);
-								ShowPlayerMenu(client);
-								g_iLastUsedCommand[client] = time;
-								return Plugin_Handled;
-							}
-						}
-						else
-						{
-							ReplyToCommand(client, "%s You must be dead in order to use \x0FGhost\x01.", CHAT_PREFIX);
-							return Plugin_Handled;
-						}
-					}
-					else
-					{
-						ReplyToCommand(client, "%s \x0FGhost\x01 is disabled during warmup.", CHAT_PREFIX);
-						return Plugin_Handled;
-					}
-				}
-				else
-				{
-					ReplyToCommand(client, "%s Please wait for the round to begin.", CHAT_PREFIX);
-					return Plugin_Handled;
-				}
-			}
-			else
-			{
-				ReplyToCommand(client, "%s You must be a valid client in order to use \x0FGhost\x01.", CHAT_PREFIX);
-				return Plugin_Handled;
-			}
-		}
-		else
-		{
-			ReplyToCommand(client, "%s You are currently \x0Fbanned\x01 from using Ghost!", CHAT_PREFIX);
-			return Plugin_Handled;
-		}
-	}
-	else
+	if (!AreClientCookiesCached(client))
 	{
 		ReplyToCommand(client, "%s Client preferences haven't loaded yet! Try again.", CHAT_PREFIX);
 		return Plugin_Handled;
 	}
+	
+	if (g_bPluginBlocked)
+	{
+		ReplyToCommand(client, "%s Please wait for the round to begin.", CHAT_PREFIX);
+		return Plugin_Handled;
+	}
+	
+	if (GameRules_GetProp("m_bWarmupPeriod"))
+	{
+		ReplyToCommand(client, "%s \x0FGhost\x01 is disabled during warmup.", CHAT_PREFIX);
+		return Plugin_Handled;
+	}
+	
+	if (IsValidClient(client))
+	{
+		ReplyToCommand(client, "%s You must be a valid client in order to use \x0FGhost\x01.", CHAT_PREFIX);
+		return Plugin_Handled;
+	}
+	
+	if (IsPlayerAlive(client))
+	{
+		ReplyToCommand(client, "%s You must be dead in order to use \x0FGhost\x01.", CHAT_PREFIX);
+		return Plugin_Handled;
+	}
+	
+	char buffer[12];
+	GetClientCookie(client, g_hBannedCookie, buffer, sizeof(buffer));
+	if (StringToInt(buffer))
+	{
+		ReplyToCommand(client, "%s You are currently \x0Fbanned\x01 from using Ghost!", CHAT_PREFIX);
+		return Plugin_Handled;
+	}
+	
+	int time = GetTime();
+	if (time - g_iLastUsedCommand[client] < g_iCoolDownTimer)
+	{
+		ReplyToCommand(client, "%s Too many commands issued! Please wait \x0F%i seconds\x01 before using that command again.", CHAT_PREFIX, g_iCoolDownTimer - (time - g_iLastUsedCommand[client]));
+		return Plugin_Handled;
+	}
+	
+	Ghost(client);
+	ShowPlayerMenu(client);
+	g_iLastUsedCommand[client] = time;
+	return Plugin_Handled;
 }
 
 public Action CMD_Unghost(int client, int args)
 {
 	if (!g_cPluginEnabled.BoolValue)
 	{
-		ReplyToCommand(client, "%s \x0FGhost\x01 has been temporarily disabled on this server..", CHAT_PREFIX);
+		ReplyToCommand(client, "%s \x0FGhost\x01 has been temporarily disabled on this server.", CHAT_PREFIX);
 		return Plugin_Handled;
 	}
 	
@@ -269,29 +254,23 @@ public Action CMD_Unghost(int client, int args)
 		ReplyToCommand(client, "%s You must be a \x0FGhost\x01 to use this command.", CHAT_PREFIX);
 		return Plugin_Handled;
 	}
-	else
+	
+	if (g_bPluginBlocked)
 	{
-		int time = GetTime();
-		if (time - g_iLastUsedCommand[client] < g_iCoolDownTimer)
-		{
-			ReplyToCommand(client, "%s Too many commands issued! Please wait \x0F%i seconds \x01before using that command again.", CHAT_PREFIX, g_iCoolDownTimer - (time - g_iLastUsedCommand[client]));
-			return Plugin_Handled;
-		}
-		else
-		{
-			if (g_bPluginBlocked)
-			{
-				ReplyToCommand(client, "%s Please wait for the round to begin.", CHAT_PREFIX);
-				return Plugin_Handled;
-			}
-			else
-			{
-				Unghost(client);
-				g_iLastUsedCommand[client] = time;
-				return Plugin_Handled;
-			}
-		}
+		ReplyToCommand(client, "%s Please wait for the round to begin.", CHAT_PREFIX);
+		return Plugin_Handled;
 	}
+	
+	int time = GetTime();
+	if (time - g_iLastUsedCommand[client] < g_iCoolDownTimer)
+	{
+		ReplyToCommand(client, "%s Too many commands issued! Please wait \x0F%i seconds \x01before using that command again.", CHAT_PREFIX, g_iCoolDownTimer - (time - g_iLastUsedCommand[client]));
+		return Plugin_Handled;
+	}
+	
+	Unghost(client);
+	g_iLastUsedCommand[client] = time;
+	return Plugin_Handled;
 }
 
 public Action CMD_GhostMenu(int client, int args)
