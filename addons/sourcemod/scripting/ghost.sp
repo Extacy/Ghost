@@ -146,7 +146,6 @@ public void OnClientPutInServer(int client)
 		g_bBlockSounds[client] = false;
 		g_bBhopEnabled[client] = false;
 		g_bSpeedEnabled[client] = false;
-		g_bNoclipEnabled[client] = false;
 		g_fSaveLocation[client] = view_as<float>( { -1.0, -1.0, -1.0 } );
 		
 		if (g_cGhostBhop.BoolValue)
@@ -211,7 +210,7 @@ public Action CMD_Ghost(int client, int args)
 		return Plugin_Handled;
 	}
 	
-	if (IsValidClient(client))
+	if (!IsValidClient(client))
 	{
 		ReplyToCommand(client, "%s You must be a valid client in order to use %sGhost%s.", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 		return Plugin_Handled;
@@ -407,6 +406,7 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
 		g_bBhopEnabled[client] = false;
 		g_bSpeedEnabled[client] = false;
 		g_bNoclipEnabled[client] = false;
+		g_bBlockSounds[client] = false;
 		if (g_cGhostBhop.BoolValue)
 			SendConVarValue(client, sv_autobunnyhopping, "0");
 		if (g_cGhostSpeed.BoolValue)
