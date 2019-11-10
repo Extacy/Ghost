@@ -10,7 +10,10 @@
 
 #pragma newdecls required
 
-#define CHAT_PREFIX " \x02[\x01Ghost\x02]\x01" // Replace with your server's custom prefix / colours.
+#define CHAT_PREFIX " \x02[\x01Ghost\x02]\x01" 
+#define CHAT_COLOR "\x01"
+#define CHAT_ACCENT "\x0F"
+
 EngineVersion g_Game;
 
 // Client Preferences
@@ -186,7 +189,7 @@ public Action CMD_Ghost(int client, int args)
 {
 	if (!g_cPluginEnabled.BoolValue)
 	{
-		ReplyToCommand(client, "%s \x0FGhost\x01 has been temporarily disabled on this server.", CHAT_PREFIX);
+		ReplyToCommand(client, "%s %sGhost%s has been temporarily disabled on this server.", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 		return Plugin_Handled;
 	}
 	
@@ -204,19 +207,19 @@ public Action CMD_Ghost(int client, int args)
 	
 	if (GameRules_GetProp("m_bWarmupPeriod"))
 	{
-		ReplyToCommand(client, "%s \x0FGhost\x01 is disabled during warmup.", CHAT_PREFIX);
+		ReplyToCommand(client, "%s %sGhost%s is disabled during warmup.", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 		return Plugin_Handled;
 	}
 	
 	if (IsValidClient(client))
 	{
-		ReplyToCommand(client, "%s You must be a valid client in order to use \x0FGhost\x01.", CHAT_PREFIX);
+		ReplyToCommand(client, "%s You must be a valid client in order to use %sGhost%s.", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 		return Plugin_Handled;
 	}
 	
 	if (IsPlayerAlive(client))
 	{
-		ReplyToCommand(client, "%s You must be dead in order to use \x0FGhost\x01.", CHAT_PREFIX);
+		ReplyToCommand(client, "%s You must be dead in order to use %sGhost%s.", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 		return Plugin_Handled;
 	}
 	
@@ -224,14 +227,14 @@ public Action CMD_Ghost(int client, int args)
 	GetClientCookie(client, g_hBannedCookie, buffer, sizeof(buffer));
 	if (StringToInt(buffer))
 	{
-		ReplyToCommand(client, "%s You are currently \x0Fbanned\x01 from using Ghost!", CHAT_PREFIX);
+		ReplyToCommand(client, "%s You are currently %sbanned%s from using Ghost!", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 		return Plugin_Handled;
 	}
 	
 	int time = GetTime();
 	if (time - g_iLastUsedCommand[client] < g_iCoolDownTimer)
 	{
-		ReplyToCommand(client, "%s Too many commands issued! Please wait \x0F%i seconds\x01 before using that command again.", CHAT_PREFIX, g_iCoolDownTimer - (time - g_iLastUsedCommand[client]));
+		ReplyToCommand(client, "%s Too many commands issued! Please wait %s%i seconds%s before using that command again.", CHAT_PREFIX, CHAT_ACCENT, g_iCoolDownTimer - (time - g_iLastUsedCommand[client]), CHAT_COLOR);
 		return Plugin_Handled;
 	}
 	
@@ -245,13 +248,13 @@ public Action CMD_Unghost(int client, int args)
 {
 	if (!g_cPluginEnabled.BoolValue)
 	{
-		ReplyToCommand(client, "%s \x0FGhost\x01 has been temporarily disabled on this server.", CHAT_PREFIX);
+		ReplyToCommand(client, "%s %sGhost%s has been temporarily disabled on this server.", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 		return Plugin_Handled;
 	}
 	
 	if (!g_bIsGhost[client])
 	{
-		ReplyToCommand(client, "%s You must be a \x0FGhost\x01 to use this command.", CHAT_PREFIX);
+		ReplyToCommand(client, "%s You must be a %sGhost%s to use this command.", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 		return Plugin_Handled;
 	}
 	
@@ -264,7 +267,7 @@ public Action CMD_Unghost(int client, int args)
 	int time = GetTime();
 	if (time - g_iLastUsedCommand[client] < g_iCoolDownTimer)
 	{
-		ReplyToCommand(client, "%s Too many commands issued! Please wait \x0F%i seconds \x01before using that command again.", CHAT_PREFIX, g_iCoolDownTimer - (time - g_iLastUsedCommand[client]));
+		ReplyToCommand(client, "%s Too many commands issued! Please wait %s%i seconds%s before using that command again.", CHAT_PREFIX, CHAT_ACCENT, g_iCoolDownTimer - (time - g_iLastUsedCommand[client]), CHAT_COLOR);
 		return Plugin_Handled;
 	}
 	
@@ -282,7 +285,7 @@ public Action CMD_GhostMenu(int client, int args)
 	}
 	else
 	{
-		ReplyToCommand(client, "%s You must be a \x0FGhost\x01 to use this command.", CHAT_PREFIX);
+		ReplyToCommand(client, "%s You must be a %sGhost%s to use this command.", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 	}
 	return Plugin_Handled;
 }
@@ -317,18 +320,18 @@ public Action CMD_IsGhost(int client, int args)
 	
 	if (target == -1)
 	{
-		ReplyToCommand(client, "%s Player %s was not found.", CHAT_PREFIX, arg);
+		ReplyToCommand(client, "%s Player %s%s%s was not found.", CHAT_PREFIX, CHAT_ACCENT, arg, CHAT_COLOR);
 	}
 	else
 	{
 		if (g_bIsGhost[target])
 		{
 			ShowAdminMenu(client, target);
-			ReplyToCommand(client, "%s Player %N \x0FIS\x01 a Ghost.", CHAT_PREFIX, target);
+			ReplyToCommand(client, "%s Player %N %sIS%s a Ghost.", CHAT_PREFIX, target, CHAT_ACCENT, CHAT_COLOR);
 		}
 		else
 		{
-			ReplyToCommand(client, "%s Player %N is \x0FNOT\x01 a Ghost.", CHAT_PREFIX, target);
+			ReplyToCommand(client, "%s Player %N is %sNOT%s a Ghost.", CHAT_PREFIX, target, CHAT_ACCENT, CHAT_COLOR);
 			
 			char name[64];
 			GetClientName(target, name, sizeof(name));
@@ -391,7 +394,7 @@ public Action Event_PrePlayerDeath(Event event, const char[] name, bool dontBroa
 		return Plugin_Handled;
 	}
 	
-	PrintToChat(client, "%s Type \x0F/ghost\x01 to respawn as a ghost!", CHAT_PREFIX);
+	PrintToChat(client, "%s Type %s/ghost%s to respawn as a ghost!", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 	return Plugin_Continue;
 }
 
@@ -467,7 +470,7 @@ public Action Timer_ResetValue(Handle timer, any userid)
 public Action Timer_ChatAdvert(Handle timer)
 {
 	if (g_cChatAdverts.BoolValue)
-		PrintToChatAll("%s This server is running \x0FGhost\x01! Type \x0F/ghost\x01", CHAT_PREFIX);
+		PrintToChatAll("%s This server is running %sGhost%s! Type %s/ghost%s", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR, CHAT_ACCENT, CHAT_COLOR);
 	
 	return Plugin_Continue;
 }
@@ -600,7 +603,7 @@ public void Ghost(int client)
 	SetEntProp(client, Prop_Data, "m_ArmorValue", 0);
 	SetEntProp(client, Prop_Send, "m_bHasDefuser", 0);
 	
-	ReplyToCommand(client, "%s Respawned as a \x0Fghost\x01.", CHAT_PREFIX);
+	ReplyToCommand(client, "%s Respawned as a %sghost%s.", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 }
 
 public void Unghost(int client)
@@ -612,7 +615,7 @@ public void Unghost(int client)
 		SetEntProp(client, Prop_Data, "m_iDeaths", GetClientDeaths(client) - 1);
 		ForcePlayerSuicide(client);
 		
-		PrintToChat(client, "%s Returned to \x0Fspectator\x01.", CHAT_PREFIX);
+		ReplyToCommand(client, "%s Returned to %sspectator%s.", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 	}
 }
 
@@ -653,13 +656,13 @@ public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param
 						{
 							SetEntityMoveType(param1, MOVETYPE_WALK);
 							g_bNoclipEnabled[param1] = false;
-							PrintToChat(param1, "%s Disabled \x0FNoclip\x01!", CHAT_PREFIX);
+							PrintToChat(param1, "%s Disabled %sNoclip%s!", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 						}
 						else
 						{
 							SetEntityMoveType(param1, MOVETYPE_NOCLIP);
 							g_bNoclipEnabled[param1] = true;
-							PrintToChat(param1, "%s Enabled \x0FNoclip\x01!", CHAT_PREFIX);
+							PrintToChat(param1, "%s Enabled %sNoclip%s!", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 						}
 					}
 					else
@@ -675,13 +678,13 @@ public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param
 						{
 							SendConVarValue(param1, sv_autobunnyhopping, "0");
 							g_bBhopEnabled[param1] = false;
-							PrintToChat(param1, "%s Disabled \x0FBhop\x01!", CHAT_PREFIX);
+							PrintToChat(param1, "%s Disabled %sBhop%s!", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 						}
 						else
 						{
 							SendConVarValue(param1, sv_autobunnyhopping, "1");
 							g_bBhopEnabled[param1] = true;
-							PrintToChat(param1, "%s Enabled \x0FBhop\x01!", CHAT_PREFIX);
+							PrintToChat(param1, "%s Enabled %sBhop%s!", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 						}
 					}
 				}
@@ -693,13 +696,13 @@ public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param
 						{
 							SendConVarValue(param1, sv_enablebunnyhopping, "0");
 							g_bSpeedEnabled[param1] = false;
-							PrintToChat(param1, "%s Disabled \x0FUnlimited Speed\x01!", CHAT_PREFIX);
+							PrintToChat(param1, "%s Disabled %sUnlimited Speed%s!", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 						}
 						else
 						{
 							SendConVarValue(param1, sv_enablebunnyhopping, "1");
 							g_bSpeedEnabled[param1] = true;
-							PrintToChat(param1, "%s Enabled \x0FUnlimited Speed\x01!", CHAT_PREFIX);
+							PrintToChat(param1, "%s Enabled %sUnlimited Speed%s!", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 						}
 					}
 				}
@@ -713,12 +716,12 @@ public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param
 						if (StringToInt(buffer))
 						{
 							SetClientCookie(param1, g_hViewPlayersCookie, "0");
-							PrintToChat(param1, "%s Ghosts are now \x0Fhidden\x01!", CHAT_PREFIX);
+							PrintToChat(param1, "%s Ghosts are now %shidden%s!", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 						}
 						else
 						{
 							SetClientCookie(param1, g_hViewPlayersCookie, "1");
-							PrintToChat(param1, "%s Ghosts are now \x0Funhidden\x01!", CHAT_PREFIX);
+							PrintToChat(param1, "%s Ghosts are now %sunhidden%s!", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 						}
 					}
 					else
@@ -783,13 +786,13 @@ public int AdminMenuHandler(Menu menu, MenuAction action, int param1, int param2
 				float location[3];
 				GetClientAbsOrigin(player, location);
 				TeleportEntity(param1, location, NULL_VECTOR, NULL_VECTOR);
-				PrintToChat(param1, "%s Teleported to %N", CHAT_PREFIX, player);
+				PrintToChat(param1, "%s Teleported to %s%N%s.", CHAT_PREFIX, CHAT_ACCENT, player, CHAT_COLOR);
 				ShowAdminMenu(param1, player);
 			}
 			else if (StrEqual(info, "unghost"))
 			{
 				Unghost(player);
-				PrintToChatAll("%s \x0F%N \x01returned \x0F%N\x01 to spectator", CHAT_PREFIX, param1, player);
+				PrintToChatAll("%s %s%N %sreturned %s%N%s to spectator.", CHAT_PREFIX, CHAT_ACCENT, param1, CHAT_COLOR, CHAT_ACCENT, player, CHAT_COLOR);
 			}
 			
 			else if (StrEqual(info, "mapban"))
@@ -802,13 +805,13 @@ public int AdminMenuHandler(Menu menu, MenuAction action, int param1, int param2
 					if (StringToInt(sBuffer))
 					{
 						SetClientCookie(player, g_hBannedCookie, "0");
-						PrintToChatAll("%s \x0F%N\x01 unbanned \x0F%N\x01 from Ghost!", CHAT_PREFIX, param1, player);
+						PrintToChatAll("%s %s%N%s unbanned %s%N%s from Ghost!", CHAT_PREFIX, CHAT_ACCENT, param1, CHAT_COLOR, CHAT_ACCENT, player, CHAT_COLOR);
 					}
 					else
 					{
 						Unghost(player);
 						SetClientCookie(player, g_hBannedCookie, "1");
-						PrintToChatAll("%s \x0F%N\x01 banned \x0F%N\x01 from Ghost!", CHAT_PREFIX, param1, player);
+						PrintToChatAll("%s %s%N%s banned %s%N%s from Ghost!", CHAT_PREFIX, CHAT_ACCENT, param1, CHAT_COLOR, CHAT_ACCENT, player, CHAT_COLOR);
 					}
 				}
 				else
@@ -819,7 +822,7 @@ public int AdminMenuHandler(Menu menu, MenuAction action, int param1, int param2
 		}
 		else
 		{
-			PrintToChat(param1, "%s Fatal Regex error. Please try again.", CHAT_PREFIX);
+			PrintToChat(param1, "%s Fatal Regex error! Please try again.", CHAT_PREFIX);
 		}
 	}
 	else if (action == MenuAction_End)
