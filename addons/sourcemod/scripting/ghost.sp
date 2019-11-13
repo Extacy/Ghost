@@ -146,6 +146,7 @@ public void OnClientPutInServer(int client)
 		g_bBlockSounds[client] = false;
 		g_bBhopEnabled[client] = false;
 		g_bSpeedEnabled[client] = false;
+		g_bNoclipEnabled[client] = false;
 		g_fSaveLocation[client] = view_as<float>( { -1.0, -1.0, -1.0 } );
 		
 		if (g_cGhostBhop.BoolValue)
@@ -400,13 +401,14 @@ public Action Event_PrePlayerDeath(Event event, const char[] name, bool dontBroa
 public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
+
 	if (IsValidClient(client))
 	{
 		g_bIsGhost[client] = false;
+		g_bBlockSounds[client] = false;
 		g_bBhopEnabled[client] = false;
 		g_bSpeedEnabled[client] = false;
 		g_bNoclipEnabled[client] = false;
-		g_bBlockSounds[client] = false;
 		if (g_cGhostBhop.BoolValue)
 			SendConVarValue(client, sv_autobunnyhopping, "0");
 		if (g_cGhostSpeed.BoolValue)
@@ -462,7 +464,6 @@ public Action Timer_ResetValue(Handle timer, any userid)
 {
 	int client = GetClientOfUserId(userid);
 	g_bIsGhost[client] = false;
-	g_bBlockSounds[client] = false;
 	return Plugin_Stop;
 }
 
@@ -572,7 +573,10 @@ public void Ghost(int client)
 	g_bBlockSounds[client] = true;
 	g_bIsGhost[client] = false; // This is done so the player can pick up their spawned weapons to remove them.
 	CS_RespawnPlayer(client);
+	
+	// Set values that were reset onplayerspawn
 	g_bIsGhost[client] = true;
+	g_bBlockSounds[client] = true;
 	
 	// Remove spawned in weapons
 	int weaponIndex;
