@@ -1,6 +1,8 @@
 # Ghost
 Improved version of Pyro_'s Redie.
 
+Alliedmods Thread: https://forums.alliedmods.net/showthread.php?p=2673662
+
 Video Demo: <a href="http://www.youtube.com/watch?feature=player_embedded&v=8T07u3TYINM
 " target="_blank"><img src="http://img.youtube.com/vi/8T07u3TYINM/0.jpg" 
 alt="Ghost Test Video" width="240" height="180" border="10" /></a>
@@ -8,6 +10,7 @@ alt="Ghost Test Video" width="240" height="180" border="10" /></a>
 * Noclip
 * Autobhop
 * Unlimited speed
+* Checkpoint teleports
 * Working Unghost / Unredie
 * Working trigger_teleports
 * Players have access to a menu to toggle their own settings as a ghost. [\[IMG\]](https://i.imgur.com/AcEPss2.png)
