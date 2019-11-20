@@ -1,9 +1,9 @@
 # Ghost
 Improved version of Pyro_'s Redie.
 
-Video Demo: <a href="http://www.youtube.com/watch?feature=player_embedded&v=4SenGodqBFA
-" target="_blank"><img src="http://img.youtube.com/vi/4SenGodqBFA/0.jpg" 
-alt="Redie Test Video" width="240" height="180" border="10" /></a>
+Video Demo: <a href="http://www.youtube.com/watch?feature=player_embedded&v=8T07u3TYINM
+" target="_blank"><img src="http://img.youtube.com/vi/8T07u3TYINM/0.jpg" 
+alt="Ghost Test Video" width="240" height="180" border="10" /></a>
 ## Features:
 * Noclip
 * Autobhop
