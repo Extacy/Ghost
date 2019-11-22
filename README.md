@@ -19,7 +19,7 @@ alt="Ghost Test Video" width="240" height="180" border="10" /></a>
 ## Commands
 * sm_ghost / sm_redie -> Turn into a ghost after you die
 * sm_unghost / sm_unredie -> Return back to spectator
-* sm_inghost / sm_inredie <player> -> Admin command to see who is in Ghost/Redie or not. Omit the player name and view a full list of all clients in Ghost/Redie. Selecting a player will display the Admin Menu.
+* sm_inghost / sm_inredie [player] -> Admin command to see who is in Ghost/Redie or not. Omit the player name and view a full list of all clients in Ghost/Redie. Selecting a player will display the Admin Menu.
 
 ## ConVars
 * `sm_ghost_enabled 1|0 "Set whether Ghost is enabled on the server."`
