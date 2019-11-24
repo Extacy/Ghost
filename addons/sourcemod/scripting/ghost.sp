@@ -16,10 +16,6 @@
 
 EngineVersion g_Game;
 
-// Client Preferences
-Handle g_hViewPlayersCookie; // Cookie to toggle viewing other ghosts
-Handle g_hBannedCookie; // Cookie for if player is banned from using Ghost.
-
 // ConVars
 ConVar g_cPluginEnabled;
 ConVar g_cGhostBhop;
@@ -44,7 +40,6 @@ int g_iLastButtons[MAXPLAYERS + 1]; // Last used button (+use, +reload etc) for 
 
 float g_fSaveLocation[MAXPLAYERS + 1][3]; // Save position location for ghosts
 
-
 public Plugin myinfo = 
 {
 	name = "Ghost", 
@@ -61,9 +56,6 @@ public void OnPluginStart()
 	{
 		SetFailState("This plugin is for CS:GO/CSS only.");
 	}
-	
-	g_hViewPlayersCookie = RegClientCookie("ghost_viewplayers", "", CookieAccess_Private);
-	g_hBannedCookie = RegClientCookie("ghost_banned", "", CookieAccess_Private);
 	
 	g_cPluginEnabled = CreateConVar("sm_ghost_enabled", "1", "Set whether Ghost is enabled on the server.");
 	g_cGhostBhop = CreateConVar("sm_ghost_bhop", "1", "Set whether ghosts can autobhop.");
@@ -95,8 +87,7 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_unghost", CMD_Unghost, "Return to spectator.");
 	RegConsoleCmd("sm_unredie", CMD_Unghost, "Return to spectator.");
 	RegConsoleCmd("sm_rmenu", CMD_GhostMenu, "Display player menu.");
-	RegAdminCmd("sm_isghost", CMD_IsGhost, ADMFLAG_KICK, "Returns if player is a Ghost, also used for the Admin Menu");
-	
+
 	for (int i = 0; i <= MaxClients; i++)
 	if (IsValidClient(i))
 		OnClientPutInServer(i);
@@ -113,23 +104,6 @@ public int Native_IsGhost(Handle plugin, int numParams)
 {
 	int client = GetNativeCell(1);
 	return g_bIsGhost[client];
-}
-
-public void OnClientCookiesCached(int client)
-{
-	char buffer[12];
-	
-	GetClientCookie(client, g_hBannedCookie, buffer, sizeof(buffer));
-	if (StrEqual(buffer, ""))
-	{
-		SetClientCookie(client, g_hBannedCookie, "0");
-	}
-	
-	GetClientCookie(client, g_hViewPlayersCookie, buffer, sizeof(buffer));
-	if (StrEqual(buffer, ""))
-	{
-		SetClientCookie(client, g_hViewPlayersCookie, "1");
-	}
 }
 
 public void OnMapStart()
@@ -193,12 +167,6 @@ public Action CMD_Ghost(int client, int args)
 		return Plugin_Handled;
 	}
 	
-	if (!AreClientCookiesCached(client))
-	{
-		ReplyToCommand(client, "%s Client preferences haven't loaded yet! Try again.", CHAT_PREFIX);
-		return Plugin_Handled;
-	}
-	
 	if (g_bPluginBlocked)
 	{
 		ReplyToCommand(client, "%s Please wait for the round to begin.", CHAT_PREFIX);
@@ -220,14 +188,6 @@ public Action CMD_Ghost(int client, int args)
 	if (IsPlayerAlive(client))
 	{
 		ReplyToCommand(client, "%s You must be dead in order to use %sGhost%s.", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
-		return Plugin_Handled;
-	}
-	
-	char buffer[12];
-	GetClientCookie(client, g_hBannedCookie, buffer, sizeof(buffer));
-	if (StringToInt(buffer))
-	{
-		ReplyToCommand(client, "%s You are currently %sbanned%s from using Ghost!", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 		return Plugin_Handled;
 	}
 	
@@ -287,80 +247,6 @@ public Action CMD_GhostMenu(int client, int args)
 	{
 		ReplyToCommand(client, "%s You must be a %sGhost%s to use this command.", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 	}
-	return Plugin_Handled;
-}
-
-public Action CMD_IsGhost(int client, int args)
-{
-	if (args != 1)
-	{
-		Menu menu = new Menu(InPlayerMenuHandler);
-		menu.SetTitle("Players in Ghost");
-		
-		for (int i = 0; i <= MaxClients; i++)
-		{
-			if (g_bIsGhost[i])
-			{
-				char index[16], name[32];
-				IntToString(i, index, sizeof(index));
-				GetClientName(i, name, sizeof(name));
-				
-				menu.AddItem(index, name);
-			}
-		}
-		
-		menu.Display(client, MENU_TIME_FOREVER);
-		return Plugin_Handled;
-	}
-	
-	char arg[32];
-	GetCmdArg(1, arg, sizeof(arg));
-	
-	int target = FindTarget(0, arg);
-	
-	if (target == -1)
-	{
-		ReplyToCommand(client, "%s Player %s%s%s was not found.", CHAT_PREFIX, CHAT_ACCENT, arg, CHAT_COLOR);
-	}
-	else
-	{
-		if (g_bIsGhost[target])
-		{
-			ShowAdminMenu(client, target);
-			ReplyToCommand(client, "%s Player %N %sIS%s a Ghost.", CHAT_PREFIX, target, CHAT_ACCENT, CHAT_COLOR);
-		}
-		else
-		{
-			ReplyToCommand(client, "%s Player %N is %sNOT%s a Ghost.", CHAT_PREFIX, target, CHAT_ACCENT, CHAT_COLOR);
-			
-			char name[64];
-			GetClientName(target, name, sizeof(name));
-			
-			Menu menu = new Menu(AdminMenuHandler);
-			
-			if (AreClientCookiesCached(client))
-			{
-				char buffer[12];
-				GetClientCookie(target, g_hBannedCookie, buffer, sizeof(buffer));
-				
-				if (StringToInt(buffer))
-				{
-					menu.AddItem("mapban", "Unban player from using Ghost");
-					Format(name, sizeof(name), "Player: %s (%i) [BANNED]", name, GetClientUserId(target));
-				}
-				else
-				{
-					menu.AddItem("mapban", "Ban player from using Ghost");
-					Format(name, sizeof(name), "Player: %s (%i)", name, GetClientUserId(target));
-				}
-			}
-			
-			menu.SetTitle(name);
-			menu.Display(client, MENU_TIME_FOREVER);
-		}
-		
-	}
-	
 	return Plugin_Handled;
 }
 
@@ -710,29 +596,6 @@ public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param
 						}
 					}
 				}
-				case 6:
-				{
-					if (AreClientCookiesCached(param1))
-					{
-						char buffer[12];
-						GetClientCookie(param1, g_hViewPlayersCookie, buffer, sizeof(buffer));
-						
-						if (StringToInt(buffer))
-						{
-							SetClientCookie(param1, g_hViewPlayersCookie, "0");
-							PrintToChat(param1, "%s Ghosts are now %shidden%s!", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
-						}
-						else
-						{
-							SetClientCookie(param1, g_hViewPlayersCookie, "1");
-							PrintToChat(param1, "%s Ghosts are now %sunhidden%s!", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
-						}
-					}
-					else
-					{
-						PrintToChat(param1, "%s You're settings haven't loaded yet. Try again.", CHAT_PREFIX);
-					}
-				}
 				case 9:
 				{
 					return;
@@ -743,90 +606,6 @@ public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param
 		else
 		{
 			delete menu;
-		}
-	}
-	else if (action == MenuAction_End)
-	{
-		delete menu;
-	}
-}
-
-public int InPlayerMenuHandler(Menu menu, MenuAction action, int param1, int param2)
-{
-	if (action == MenuAction_Select)
-	{
-		char info[32];
-		menu.GetItem(param2, info, sizeof(info));
-		
-		int player = StringToInt(info);
-		if (IsValidClient(player))
-			ShowAdminMenu(param1, player);
-	}
-	else if (action == MenuAction_End)
-	{
-		delete menu;
-	}
-}
-
-public int AdminMenuHandler(Menu menu, MenuAction action, int param1, int param2)
-{
-	if (action == MenuAction_Select)
-	{
-		char info[32], title[64];
-		menu.GetItem(param2, info, sizeof(info));
-		menu.GetTitle(title, sizeof(title));
-		
-		Regex regex = new Regex("\\((.*)\\)");
-		
-		if (regex.Match(title) > 0)
-		{
-			char buffer[128];
-			regex.GetSubString(1, buffer, sizeof(buffer));
-			
-			int player = GetClientOfUserId(StringToInt(buffer));
-			
-			if (StrEqual(info, "teleport"))
-			{
-				float location[3];
-				GetClientAbsOrigin(player, location);
-				TeleportEntity(param1, location, NULL_VECTOR, NULL_VECTOR);
-				PrintToChat(param1, "%s Teleported to %s%N%s.", CHAT_PREFIX, CHAT_ACCENT, player, CHAT_COLOR);
-				ShowAdminMenu(param1, player);
-			}
-			else if (StrEqual(info, "unghost"))
-			{
-				Unghost(player);
-				PrintToChatAll("%s %s%N %sreturned %s%N%s to spectator.", CHAT_PREFIX, CHAT_ACCENT, param1, CHAT_COLOR, CHAT_ACCENT, player, CHAT_COLOR);
-			}
-			
-			else if (StrEqual(info, "mapban"))
-			{
-				if (AreClientCookiesCached(param1))
-				{
-					char sBuffer[12];
-					GetClientCookie(player, g_hBannedCookie, sBuffer, sizeof(sBuffer));
-					
-					if (StringToInt(sBuffer))
-					{
-						SetClientCookie(player, g_hBannedCookie, "0");
-						PrintToChatAll("%s %s%N%s unbanned %s%N%s from Ghost!", CHAT_PREFIX, CHAT_ACCENT, param1, CHAT_COLOR, CHAT_ACCENT, player, CHAT_COLOR);
-					}
-					else
-					{
-						Unghost(player);
-						SetClientCookie(player, g_hBannedCookie, "1");
-						PrintToChatAll("%s %s%N%s banned %s%N%s from Ghost!", CHAT_PREFIX, CHAT_ACCENT, param1, CHAT_COLOR, CHAT_ACCENT, player, CHAT_COLOR);
-					}
-				}
-				else
-				{
-					PrintToChat(param1, "%s Client preferences haven't loaded yet! Try again.", CHAT_PREFIX);
-				}
-			}
-		}
-		else
-		{
-			PrintToChat(param1, "%s Fatal Regex error! Please try again.", CHAT_PREFIX);
 		}
 	}
 	else if (action == MenuAction_End)
@@ -880,12 +659,6 @@ public void ShowPlayerMenu(int client)
 		panel.DrawItem("[X] Speed", ITEMDRAW_DISABLED);
 	}
 	
-	if (AreClientCookiesCached(client))
-	{
-		char buffer[12];
-		GetClientCookie(client, g_hViewPlayersCookie, buffer, sizeof(buffer));
-	}
-	
 	panel.DrawItem("", ITEMDRAW_NOTEXT);
 	panel.DrawItem("", ITEMDRAW_NOTEXT);
 	panel.DrawItem("", ITEMDRAW_NOTEXT);
@@ -894,37 +667,6 @@ public void ShowPlayerMenu(int client)
 	panel.DrawItem("Exit");
 	panel.Send(client, PlayerMenuHandler, MENU_TIME_FOREVER);
 	delete panel;
-}
-
-public void ShowAdminMenu(int client, int player)
-{
-	char name[64];
-	GetClientName(player, name, sizeof(name));
-	
-	Menu menu = new Menu(AdminMenuHandler);
-	menu.AddItem("teleport", "Teleport to Player");
-	menu.AddItem("unghost", "Unghost Player");
-	
-	if (AreClientCookiesCached(client))
-	{
-		char buffer[12];
-		GetClientCookie(player, g_hBannedCookie, buffer, sizeof(buffer));
-		
-		if (StringToInt(buffer))
-		{
-			Format(name, sizeof(name), "Player: %s (%i) [BANNED]", name, GetClientUserId(player));
-			menu.SetTitle(name);
-			menu.AddItem("mapban", "Unban player from Ghost");
-		}
-		else
-		{
-			Format(name, sizeof(name), "Player: %s (%i)", name, GetClientUserId(player));
-			menu.SetTitle(name);
-			menu.AddItem("mapban", "Ban player from Ghost");
-		}
-	}
-	
-	menu.Display(client, MENU_TIME_FOREVER);
 }
 
 public Action OnPlayerRunCmd(int client, int & buttons, int & impulse, float vel[3], float angles[3], int & weapon, int & subtype, int & cmdnum, int & tickcount, int & seed, int mouse[2])
