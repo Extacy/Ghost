@@ -38,7 +38,8 @@ int g_iLastUsedCommand[MAXPLAYERS + 1]; // Array of clients and the time they la
 int g_iCoolDownTimer = 5; // How long, in seconds, should the cooldown between commands be
 int g_iLastButtons[MAXPLAYERS + 1]; // Last used button (+use, +reload etc) for ghosts. - Used for noclip
 
-float g_fSaveLocation[MAXPLAYERS + 1][3]; // Save position location for ghosts
+float g_fSaveLocationPos[MAXPLAYERS + 1][3]; // Save position location for ghosts
+float g_fSaveLocationAng[MAXPLAYERS + 1][3]; // Save position angles for ghosts
 
 public Plugin myinfo = 
 {
@@ -121,7 +122,8 @@ public void OnClientPutInServer(int client)
 		g_bBhopEnabled[client] = false;
 		g_bSpeedEnabled[client] = false;
 		g_bNoclipEnabled[client] = false;
-		g_fSaveLocation[client] = view_as<float>( { -1.0, -1.0, -1.0 } );
+		g_fSaveLocationPos[client] = view_as<float>( { -1.0, -1.0, -1.0 } );
+		g_fSaveLocationAng[client] = view_as<float>( { -1.0, -1.0, -1.0 } );
 		
 		if (g_cGhostBhop.BoolValue)
 			SendConVarValue(client, sv_autobunnyhopping, "0");
@@ -520,23 +522,23 @@ public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param
 			{
 				case 1:
 				{
-					if (!(g_fSaveLocation[param1][0] == -1.0 && 
-							g_fSaveLocation[param1][1] == -1.0 && 
-							g_fSaveLocation[param1][2] == -1.0))
+					GetClientAbsOrigin(param1, g_fSaveLocationPos[param1]);
+					GetClientAbsAngles(param1, g_fSaveLocationAng[param1]);
+					PrintToChat(param1, "%s Saved Location!", CHAT_PREFIX);
+				}
+				case 2:
+				{
+					if (!(g_fSaveLocationPos[param1][0] == -1.0 && 
+							g_fSaveLocationPos[param1][1] == -1.0 && 
+							g_fSaveLocationPos[param1][2] == -1.0))
 					{
-						float velocity[3] =  { 0.0, 0.0, 0.0 };
-						TeleportEntity(param1, g_fSaveLocation[param1], NULL_VECTOR, velocity);
+						TeleportEntity(param1, g_fSaveLocationPos[param1], g_fSaveLocationAng[param1], view_as<float>( { -1.0, -1.0, -1.0 } ));
 						PrintToChat(param1, "%s Teleported to your saved location!", CHAT_PREFIX);
 					}
 					else
 					{
 						PrintToChat(param1, "%s Save a location first!", CHAT_PREFIX);
 					}
-				}
-				case 2:
-				{
-					GetClientAbsOrigin(param1, g_fSaveLocation[param1]);
-					PrintToChat(param1, "%s Saved Location!", CHAT_PREFIX);
 				}
 				case 3:
 				{
@@ -619,8 +621,8 @@ public void ShowPlayerMenu(int client)
 	Panel panel = CreatePanel();
 	panel.SetTitle("Ghost Menu [sm_rmenu]");
 	
-	panel.DrawItem("Teleport");
 	panel.DrawItem("Checkpoint");
+	panel.DrawItem("Teleport");
 	
 	panel.DrawText(" ");
 	if (g_cGhostNoclip.BoolValue)
