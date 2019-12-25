@@ -1,14 +1,10 @@
-#pragma semicolon 1
-
 #include <sourcemod>
 #include <cstrike>
 #include <sdktools>
 #include <sdkhooks>
-#include <entity>
-#include <regex>
-#include <clientprefs>
 
 #pragma newdecls required
+#pragma semicolon 1
 
 #define CHAT_PREFIX " \x02[\x01Ghost\x02]\x01" 
 #define CHAT_COLOR "\x01"
@@ -88,7 +84,7 @@ public void OnPluginStart()
 	RegConsoleCmd("sm_unghost", CMD_Unghost, "Return to spectator.");
 	RegConsoleCmd("sm_unredie", CMD_Unghost, "Return to spectator.");
 	RegConsoleCmd("sm_rmenu", CMD_GhostMenu, "Display player menu.");
-
+	
 	for (int i = 0; i <= MaxClients; i++)
 	if (IsValidClient(i))
 		OnClientPutInServer(i);
@@ -289,7 +285,7 @@ public Action Event_PrePlayerDeath(Event event, const char[] name, bool dontBroa
 public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
-
+	
 	if (IsValidClient(client))
 	{
 		g_bIsGhost[client] = false;
@@ -318,11 +314,24 @@ public Action Event_PreRoundStart(Event event, const char[] name, bool dontBroad
 {
 	g_bPluginBlocked = false;
 	
-	char entities[][] =  { "func_breakable", "func_button", "func_door", "func_door_rotating", "func_tanktrain", "func_tracktrain", "trigger_hurt", "trigger_multiple", "trigger_once" };
-	for (int i = 0; i <= sizeof(entities) - 1; i++)
+	char movingEntities[][] =  { "func_door", "func_door_rotating", "func_tanktrain", "func_tracktrain", "func_rotating" };
+	for (int i = 0; i <= sizeof(movingEntities) - 1; i++)
 	{
 		int ent = -1;
-		while ((ent = FindEntityByClassname(ent, entities[i])) != -1)
+		while ((ent = FindEntityByClassname(ent, movingEntities[i])) != -1)
+		{
+			SDKHookEx(ent, SDKHook_EndTouch, RespawnOnTouch);
+			SDKHookEx(ent, SDKHook_StartTouch, RespawnOnTouch);
+			SDKHookEx(ent, SDKHook_Touch, RespawnOnTouch);
+		}
+		
+	}
+	
+	char otherEntities[][] =  { "func_breakable", "func_breakable_surf", "func_button", "trigger_hurt", "trigger_multiple", "trigger_once" };
+	for (int i = 0; i <= sizeof(otherEntities) - 1; i++)
+	{
+		int ent = -1;
+		while ((ent = FindEntityByClassname(ent, otherEntities[i])) != -1)
 		{
 			SDKHookEx(ent, SDKHook_EndTouch, BlockOnTouch);
 			SDKHookEx(ent, SDKHook_StartTouch, BlockOnTouch);
@@ -380,9 +389,27 @@ public Action Hook_SetTransmit_Player(int entity, int client)
 }
 
 // Disable ghosts from interacting with world by touch
+
+public Action RespawnOnTouch(int entity, int client)
+{
+	if (IsValidClient(client) && g_bIsGhost[client])
+	{
+		Ghost(client);
+		
+		char classname[64];
+		GetEntityClassname(entity, classname, sizeof(classname));
+		
+		PrintToChat(client, "%s You were respawns for touching a %s%s%s.", CHAT_PREFIX, CHAT_ACCENT, classname, CHAT_COLOR);
+		return Plugin_Handled;
+	}
+		
+	
+	return Plugin_Continue;
+}
+
 public Action BlockOnTouch(int entity, int client)
 {
-	if (client && client <= MaxClients && g_bIsGhost[client])
+	if (IsValidClient(client) && g_bIsGhost[client])
 		return Plugin_Handled;
 	
 	return Plugin_Continue;
