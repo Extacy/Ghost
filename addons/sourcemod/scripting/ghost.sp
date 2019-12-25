@@ -399,7 +399,7 @@ public Action RespawnOnTouch(int entity, int client)
 		char classname[64];
 		GetEntityClassname(entity, classname, sizeof(classname));
 		
-		PrintToChat(client, "%s You were respawns for touching a %s%s%s.", CHAT_PREFIX, CHAT_ACCENT, classname, CHAT_COLOR);
+		PrintToChat(client, "%s You were respawned for touching a %s%s%s.", CHAT_PREFIX, CHAT_ACCENT, classname, CHAT_COLOR);
 		return Plugin_Handled;
 	}
 		
