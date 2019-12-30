@@ -685,7 +685,7 @@ public void ShowPlayerMenu(int client)
 	}
 	else
 	{
-		panel.DrawItem("[X] Speed", ITEMDRAW_DISABLED);
+		panel.DrawItem("[X] Speed (Disabled)", ITEMDRAW_DISABLED);
 	}
 	
 	panel.DrawItem("", ITEMDRAW_NOTEXT);
