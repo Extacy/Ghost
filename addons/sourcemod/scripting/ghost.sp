@@ -63,8 +63,6 @@ public void OnPluginStart()
 	
 	sv_autobunnyhopping = FindConVar("sv_autobunnyhopping");
 	sv_enablebunnyhopping = FindConVar("sv_enablebunnyhopping");
-	SetConVarFlags(sv_autobunnyhopping, GetConVarFlags(sv_autobunnyhopping) & ~FCVAR_REPLICATED);
-	SetConVarFlags(sv_enablebunnyhopping, GetConVarFlags(sv_enablebunnyhopping) & ~FCVAR_REPLICATED);
 	
 	LoadTranslations("common.phrases.txt");
 	
@@ -88,6 +86,14 @@ public void OnPluginStart()
 	for (int i = 0; i <= MaxClients; i++)
 	if (IsValidClient(i))
 		OnClientPutInServer(i);
+}
+
+public void OnConfigsExecuted()
+{
+	if (g_cGhostBhop.BoolValue)
+		SetConVarFlags(sv_autobunnyhopping, GetConVarFlags(sv_autobunnyhopping) & ~FCVAR_REPLICATED);
+	if (g_cGhostSpeed.BoolValue)
+		SetConVarFlags(sv_enablebunnyhopping, GetConVarFlags(sv_enablebunnyhopping) & ~FCVAR_REPLICATED);
 }
 
 // Natives
