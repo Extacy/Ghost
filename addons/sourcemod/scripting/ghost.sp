@@ -24,7 +24,7 @@ ConVar sv_enablebunnyhopping;
 
 // Plugin Variables
 bool g_bIsGhost[MAXPLAYERS + 1]; // Current players that are a Ghost
-bool g_bBlockSounds[MAXPLAYERS + 1]; // Clients that cannot make sounds (this is used because g_bIsGhost must be set to false when respawning player.)
+bool g_bSpawning[MAXPLAYERS + 1]; // Ghosts that are spawning in
 bool g_bBhopEnabled[MAXPLAYERS + 1]; // Ghosts that have Bhop Enabled.
 bool g_bSpeedEnabled[MAXPLAYERS + 1]; // Ghosts with unlimited speed enabled (sv_enablebunnyhopping)
 bool g_bNoclipEnabled[MAXPLAYERS + 1]; // Ghosts with noclip enabled
@@ -106,7 +106,7 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public int Native_IsGhost(Handle plugin, int numParams)
 {
 	int client = GetNativeCell(1);
-	return g_bIsGhost[client];
+	return (g_bIsGhost[client] || g_bSpawning[client]);
 }
 
 public void OnMapStart()
@@ -120,7 +120,7 @@ public void OnClientPutInServer(int client)
 	{
 		g_iLastUsedCommand[client] = 0;
 		g_bIsGhost[client] = false;
-		g_bBlockSounds[client] = false;
+		g_bSpawning[client] = false;
 		g_bBhopEnabled[client] = false;
 		g_bSpeedEnabled[client] = false;
 		g_bNoclipEnabled[client] = false;
@@ -295,10 +295,10 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
 	if (IsValidClient(client))
 	{
 		g_bIsGhost[client] = false;
-		g_bBlockSounds[client] = false;
 		g_bBhopEnabled[client] = false;
 		g_bSpeedEnabled[client] = false;
 		g_bNoclipEnabled[client] = false;
+
 		if (g_cGhostBhop.BoolValue)
 			SendConVarValue(client, sv_autobunnyhopping, "0");
 		if (g_cGhostSpeed.BoolValue)
@@ -310,7 +310,7 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
 
 public Action OnNormalSoundPlayed(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch, int &flags)
 {
-	if (IsValidClient(entity) && g_bBlockSounds[entity])
+	if (IsValidClient(entity) && (g_bSpawning[entity] || g_bIsGhost[entity]))
 		return Plugin_Handled;
 	
 	return Plugin_Continue;
@@ -491,13 +491,13 @@ public Action Hook_WeaponCanUse(int client, int weapon)
 // Plugin Functions
 public void Ghost(int client)
 {
-	g_bBlockSounds[client] = true;
+	g_bSpawning[client] = true;
 	g_bIsGhost[client] = false; // This is done so the player can pick up their spawned weapons to remove them.
 	CS_RespawnPlayer(client);
 	
 	// Set values that were reset onplayerspawn
 	g_bIsGhost[client] = true;
-	g_bBlockSounds[client] = true;
+	g_bSpawning[client] = false;
 	
 	// Remove spawned in weapons
 	int weaponIndex;
