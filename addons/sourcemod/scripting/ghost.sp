@@ -60,7 +60,10 @@ public void OnPluginStart()
 	HookEvent("round_end", Event_PreRoundEnd, EventHookMode_Pre);
 	HookEvent("player_death", Event_PrePlayerDeath, EventHookMode_Pre);
 	HookEvent("player_spawn", Event_PlayerSpawn);
-	
+
+	HookEntityOutput("func_door", "OnBlockedClosing", OnDoorBlocked);
+	HookEntityOutput("func_door_rotating", "OnBlockedClosing", OnDoorBlocked);
+
 	HookUserMessage(GetUserMessageId("TextMsg"), RemoveCashRewardMessage, true);
 	
 	AddNormalSoundHook(OnNormalSoundPlayed);
@@ -307,7 +310,6 @@ public Action Event_PreRoundStart(Event event, const char[] name, bool dontBroad
 			SDKHookEx(ent, SDKHook_StartTouch, RespawnOnTouch);
 			SDKHookEx(ent, SDKHook_Touch, RespawnOnTouch);
 		}
-		
 	}
 	
 	char otherEntities[][] =  { "func_breakable", "func_breakable_surf", "func_button", "trigger_hurt", "trigger_multiple", "trigger_once" };
@@ -320,7 +322,6 @@ public Action Event_PreRoundStart(Event event, const char[] name, bool dontBroad
 			SDKHookEx(ent, SDKHook_StartTouch, BlockOnTouch);
 			SDKHookEx(ent, SDKHook_Touch, BlockOnTouch);
 		}
-		
 	}
 	
 	return Plugin_Continue;
@@ -426,6 +427,59 @@ public Action Hook_WeaponCanUse(int client, int weapon)
 	return Plugin_Continue;
 }
 
+public Action OnDoorBlocked(const char[] output, int caller, int activator, float delay)
+{
+	if (g_bIsGhost[activator])
+	{
+		char classname[64], targetname[64];
+		GetEntPropString(caller, Prop_Send, "m_iName", targetname, sizeof(targetname));
+		GetEntityClassname(caller, classname, sizeof(classname));
+
+		DataPack pack = new DataPack();
+		CreateDataTimer(0.1, Timer_ForceClose, pack);
+		pack.WriteCell(activator);
+		pack.WriteCell(caller);
+		pack.WriteString(classname);
+		pack.WriteString(targetname);
+		pack.WriteString(output);
+	}
+}
+
+public Action Timer_ForceClose(Handle timer, DataPack pack)
+{
+	pack.Reset();
+	int client = pack.ReadCell();
+	int entity = pack.ReadCell();
+	char classname[64], targetname[64], output[64];
+	pack.ReadString(classname, sizeof(classname));
+	pack.ReadString(targetname, sizeof(targetname));
+	pack.ReadString(output, sizeof(output));
+
+	PrintToChatAll("Sup: %i %s %s %s", entity, classname, targetname, output);
+
+	if (StrEqual(targetname, ""))
+	{
+		AcceptEntityInput(entity, "Close");
+		PrintToChat(client, "%s You were respawned for %sblocking%s a %sdoor%s!", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR, CHAT_ACCENT, CHAT_COLOR);
+		Ghost(client);
+	}
+	else
+	{
+		int ent = -1;
+		while ((ent = FindEntityByClassname(ent, "func_door")) != -1)
+		{
+			char buffer[64];
+			GetEntPropString(ent, Prop_Send, "m_iName", buffer, sizeof(buffer));
+			if (StrEqual(targetname, buffer))
+			{
+				AcceptEntityInput(ent, "Close");
+				PrintToChat(client, "%s You were respawned for %sblocking%s a %sdoor%s!", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR, CHAT_ACCENT, CHAT_COLOR);
+				Ghost(client);
+			}
+		}
+	}
+}
+
 // Plugin Functions
 public void Ghost(int client)
 {
@@ -448,7 +502,6 @@ public void Ghost(int client)
 		}
 	}
 
-	// TODO: Enable speed
 	if (g_cGhostBhop.BoolValue)
 	{
 		g_bBhopEnabled[client] = true;
