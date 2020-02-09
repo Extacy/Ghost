@@ -94,11 +94,6 @@ public int Native_IsGhost(Handle plugin, int numParams)
 	return (g_bIsGhost[client] || g_bSpawning[client]);
 }
 
-public void OnMapStart()
-{
-	PrecacheModel("models/props/cs_militia/bottle02.mdl");
-}
-
 public void OnClientPutInServer(int client)
 {
 	if (IsValidClient(client))
@@ -507,11 +502,10 @@ public void Ghost(int client)
 		g_bBhopEnabled[client] = true;
 		SendConVarValue(client, sv_autobunnyhopping, "1");
 	}
-	
+
 	// Make player turn into a "ghost"
-	SetEntityModel(client, "models/props/cs_militia/bottle02.mdl"); // Set the playermodel to a small item in order to not block buttons, knife swings or bullets.
 	SetEntProp(client, Prop_Send, "m_lifeState", 1);
-	SetEntData(client, FindSendPropInfo("CBaseEntity", "m_CollisionGroup"), 2, 4, true);
+	SetEntData(client, FindSendPropInfo("CBaseEntity", "m_nSolidType"), 5, 4, true); // SOLID_CUSTOM
 	SetEntProp(client, Prop_Data, "m_ArmorValue", 0);
 	SetEntProp(client, Prop_Send, "m_bHasDefuser", 0);
 	
