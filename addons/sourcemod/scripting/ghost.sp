@@ -450,8 +450,6 @@ public Action Timer_ForceClose(Handle timer, DataPack pack)
 	pack.ReadString(targetname, sizeof(targetname));
 	pack.ReadString(output, sizeof(output));
 
-	PrintToChatAll("Sup: %i %s %s %s", entity, classname, targetname, output);
-
 	if (StrEqual(targetname, ""))
 	{
 		AcceptEntityInput(entity, "Close");
