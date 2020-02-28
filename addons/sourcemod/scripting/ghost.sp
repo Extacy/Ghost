@@ -32,9 +32,6 @@ int g_iLastUsedCommand[MAXPLAYERS + 1]; // Array of clients and the time they la
 int g_iCoolDownTimer = 5; // How long, in seconds, should the cooldown between commands be
 int g_iLastButtons[MAXPLAYERS + 1]; // Last used button (+use, +reload etc) for ghosts. - Used for noclip
 
-float g_fSaveLocationPos[MAXPLAYERS + 1][3]; // Save position location for ghosts
-float g_fSaveLocationAng[MAXPLAYERS + 1][3]; // Save position angles for ghosts
-
 public Plugin myinfo = 
 {
 	name = "Ghost", 
@@ -104,8 +101,6 @@ public void OnClientPutInServer(int client)
 		g_bBhopEnabled[client] = false;
 		g_bSpeedEnabled[client] = false;
 		g_bNoclipEnabled[client] = false;
-		g_fSaveLocationPos[client] = view_as<float>( { -1.0, -1.0, -1.0 } );
-		g_fSaveLocationAng[client] = view_as<float>( { -1.0, -1.0, -1.0 } );
 		
 		SDKHook(client, SDKHook_PreThink, Hook_PreThink);
 		SDKHook(client, SDKHook_WeaponCanUse, Hook_WeaponCanUse);
@@ -530,26 +525,25 @@ public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param
 	{
 		if (g_bIsGhost[param1])
 		{
+			static float vSavedLocation[MAXPLAYERS + 1][3];
+
 			switch (param2)
 			{
 				case 1:
 				{
-					GetClientAbsOrigin(param1, g_fSaveLocationPos[param1]);
-					GetClientAbsAngles(param1, g_fSaveLocationAng[param1]);
+					GetClientAbsOrigin(param1, vSavedLocation[param1]);
 					PrintToChat(param1, "%s Saved Location!", CHAT_PREFIX);
 				}
 				case 2:
 				{
-					if (!(g_fSaveLocationPos[param1][0] == -1.0 && 
-							g_fSaveLocationPos[param1][1] == -1.0 && 
-							g_fSaveLocationPos[param1][2] == -1.0))
+					if (IsVectorZero(vSavedLocation[param1]))
 					{
-						TeleportEntity(param1, g_fSaveLocationPos[param1], g_fSaveLocationAng[param1], view_as<float>( { -1.0, -1.0, -1.0 } ));
-						PrintToChat(param1, "%s Teleported to your saved location!", CHAT_PREFIX);
+						PrintToChat(param1, "%s Save a location first!", CHAT_PREFIX);
 					}
 					else
 					{
-						PrintToChat(param1, "%s Save a location first!", CHAT_PREFIX);
+						TeleportEntity(param1, vSavedLocation[param1], NULL_VECTOR, view_as<float>({ -1.0, -1.0, -1.0 }));
+						PrintToChat(param1, "%s Teleported to your saved location!", CHAT_PREFIX);
 					}
 				}
 				case 3:
@@ -721,4 +715,9 @@ stock bool IsValidClient(int client)
 	if (IsFakeClient(client))return false;
 	if (IsClientSourceTV(client))return false;
 	return IsClientInGame(client);
-} 
+}
+
+stock bool IsVectorZero(float vec[3])
+{
+	return (vec[0] == 0.0 && vec[1] == 0.0 && vec[2] == 0.0);
+}
