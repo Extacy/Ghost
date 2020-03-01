@@ -495,7 +495,7 @@ public void Ghost(int client)
 	}
 
 	// Make player turn into a "ghost"
-	SetEntProp(client, Prop_Send, "m_lifeState", 2);
+	SetEntProp(client, Prop_Send, "m_lifeState", 1);
 	SetEntData(client, FindSendPropInfo("CBaseEntity", "m_nSolidType"), 5, 4, true); // SOLID_CUSTOM
 	SetEntProp(client, Prop_Data, "m_ArmorValue", 0);
 	SetEntProp(client, Prop_Send, "m_bHasDefuser", 0);
