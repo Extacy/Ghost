@@ -1,6 +1,4 @@
 # Ghost
-Improved version of Pyro_'s Redie.
-
 Alliedmods Thread: https://forums.alliedmods.net/showthread.php?p=2673662
 
 Video Demo: <a href="http://www.youtube.com/watch?feature=player_embedded&v=8T07u3TYINM
@@ -20,6 +18,7 @@ alt="Ghost Test Video" width="240" height="180" border="10" /></a>
 * sm_unghost / sm_unredie -> Return back to spectator
 
 ## ConVars
+**Config File is located in `csgo/cfg/sourcemod/ghost.cfg`**
 * `sm_ghost_enabled 1|0 "Set whether Ghost is enabled on the server."`
 * `sm_ghost_bhop 1|0 "Set whether ghosts can autobhop. (sv_autobunnyhopping)"`
 * `sm_ghost_speed 1|0 "Set whether ghosts can use unlimited speed (sv_enablebunnyhopping)"`

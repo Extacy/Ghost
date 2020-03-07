@@ -43,6 +43,8 @@ public Plugin myinfo =
 
 public void OnPluginStart()
 {
+	AutoExecConfig(true, "ghost");
+
 	g_cPluginEnabled = CreateConVar("sm_ghost_enabled", "1", "Set whether Ghost is enabled on the server.");
 	g_cGhostBhop = CreateConVar("sm_ghost_bhop", "1", "Set whether ghosts can autobhop.");
 	g_cGhostSpeed = CreateConVar("sm_ghost_speed", "1", "Set whether ghosts can use unlimited speed (sv_enablebunnyhopping)");
