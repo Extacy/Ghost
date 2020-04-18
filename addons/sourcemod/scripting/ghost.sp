@@ -629,7 +629,6 @@ public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param
 public void ShowPlayerMenu(int client)
 {
 	Panel panel = CreatePanel();
-	// panel.SetTitle("Ghost Menu [sm_rmenu]");
 	
 	char buffer[32];
 
