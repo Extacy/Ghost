@@ -84,6 +84,12 @@
         "en"            "{1} {2}Ghost{3} has been temporarily disabled on this server."
     }
 
+    "NotGhost"
+    {
+        "#format"       "{1:s}{2:s}{3:s}"
+        "en"            "{1} You must be a {2}Ghost{3} to use this command."
+    }
+
     "WaitForNextRound"
     {
         "#format"       "{1:s}"
