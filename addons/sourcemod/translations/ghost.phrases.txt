@@ -1,0 +1,189 @@
+"Phrases"
+{
+    "Advert"
+    {
+        "#format"       "{1:s},{2:s},{3:s},{4:s},{5:s}"
+        "en"            "{1} This server is running {2}Ghost{3}! Type {4}/ghost{5}."
+    }
+
+    "DeathMsg"
+    {
+        "#format"       "{1:s},{2:s},{3:s}"
+        "en"            "{1} Type {2}/ghost{3} to respawn as a ghost!"
+    }
+
+    "RespawnOnTouch"
+    {
+        "#format"       "{1:s},{2:s},{3:s},{4:s}"
+        "en"            "{1} You were respawned for touching a {2}{3}{4}."
+    }
+
+    "RespawnOnBlock"
+    {
+        "#format"       "{1:s},{2:s},{3:s},{4:s},{5:s}"
+        "en"            "{1} You were respawned for {2}blocking{3} a {4}door{5}!"
+    }
+
+    "SavedLocation"
+    {
+        "#format"       "{1:s}"
+        "en"            "{1} Saved Location!"
+    }
+
+    "SaveLocationFirst"
+    {
+        "#format"       "{1:s}"
+        "en"            "{1} Save a location first!"
+    }
+
+    "TeleportedToLocation"
+    {
+        "#format"       "{1:s}"
+        "en"            "{1} Teleported to your saved location!"
+    }
+
+    "EnabledNoclip"
+    {
+        "#format"       "{1:s}{2:s}{3:s}"
+        "en"            "{1} Enabled {2}Noclip{3}!"
+    }
+
+    "DisabledNoclip"
+    {
+        "#format"       "{1:s}{2:s}{3:s}"
+        "en"            "{1} Disabled {2}Noclip{3}!"
+    }
+
+    "EnabledBhop"
+    {
+        "#format"       "{1:s}{2:s}{3:s}"
+        "en"            "{1} Enabled {2}Bhop{3}!"
+    }
+
+    "DisabledBhop"
+    {
+        "#format"       "{1:s}{2:s}{3:s}"
+        "en"            "{1} Disabled {2}Bhop{3}!"
+    }
+
+    "EnabledSpeed"
+    {
+        "#format"       "{1:s}{2:s}{3:s}"
+        "en"            "{1} Enabled {2}Unlimited Speed{3}!"
+    }
+    
+    "DisabledSpeed"
+    {
+        "#format"       "{1:s}{2:s}{3:s}"
+        "en"            "{1} Disabled {2}Unlimited Speed{3}!"
+    }
+
+    "GhostDisabled"
+    {
+        "#format"       "{1:s}{2:s}{3:s}"
+        "en"            "{1} {2}Ghost{3} has been temporarily disabled on this server."
+    }
+
+    "NotGhost"
+    {
+        "#format"       "{1:s}{2:s}{3:s}"
+        "en"            "{1} You must be a {2}Ghost{3} to use this command."
+    }
+
+    "WaitForNextRound"
+    {
+        "#format"       "{1:s}"
+        "en"            "{1} Please wait for the round to begin."
+    }
+
+    "WarmupDisabled"
+    {
+        "#format"       "{1:s}{2:s}{3:s}"
+        "en"            "{1} {2}Ghost{3} is disabled during warmup."
+    }
+
+    "NotValidClient"
+    {
+        "#format"       "{1:s}{2:s}{3:s}"
+        "en"            "{1} You must be a valid client in order to use {2}Ghost{3}."
+    }
+
+    "NotDead"
+    {
+        "#format"       "{1:s}{2:s}{3:s}"
+        "en"            "{1} You must be dead in order to use {2}Ghost{3}."
+    }
+
+    "CommandCooldown"
+    {
+        "#format"       "{1:s}{2:s}{3:i}{4:s}"
+        "en"            "{1} Too many commands issued! Please wait {2}{3} seconds{4} before using that command again."
+    }
+
+    "OpeningMenu"
+    {
+        "#format"       "{1:s}"
+        "en"            "{1} Opening Menu..."
+    }
+
+    "Ghost"
+    {
+        "#format"       "{1:s}{2:s}{3:s}"
+        "en"            "{1} Respawned as a {2}ghost{3}."
+    }
+
+    "Unghost"
+    {
+        "#format"       "{1:s}{2:s}{3:s}"
+        "en"            "{1} Returned to {2}spectator{3}."
+    }
+
+    "MenuTitle"
+    {
+        "en"            "Ghost Menu"
+    }
+
+    "MenuItemCheckpoint"
+    {
+        "en"            "Checkpoint"
+    }
+
+    "MenuItemTeleport"
+    {
+        "en"            "Teleport"
+    }
+
+    "MenuItemNoclip"
+    {
+        "en"            "Noclip (R)"
+    }
+
+    "MenuItemNoclipDisabled"
+    {
+        "en"            "Noclip (Disabled)"
+    }
+    "MenuItemBhop"
+    {
+        "en"            "Auto Bhop"
+    }
+
+    "MenuItemBhopDisabled"
+    {
+        "en"            "Auto Bhop (Disabled)"
+    }
+
+    "MenuItemSpeed"
+    {
+        "en"            "Speed"
+    }
+
+    "MenuItemSpeedDisabled"
+    {
+        "en"            "Speed (Disabled)"
+    }
+
+    "MenuItemExit"
+    {
+        "en"            "Exit"
+    }
+}
