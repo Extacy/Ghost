@@ -1,3 +1,22 @@
+/**
+ * Ghost - Allow players to respawn as Ghost when they die.
+ *
+ * Copyright (C) 2020  Extacy
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include <sourcemod>
 #include <cstrike>
 #include <sdktools>
@@ -38,7 +57,7 @@ public Plugin myinfo =
 	author = "Extacy", 
 	description = "Allow players to respawn as Ghost when they die.", 
 	version = "1.0", 
-	url = "https://steamcommunity.com/profiles/76561198183032322"
+	url = "https://github.com/Extacy/Ghost/"
 };
 
 public void OnPluginStart()
