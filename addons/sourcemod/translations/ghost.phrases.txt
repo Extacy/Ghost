@@ -4,186 +4,219 @@
     {
         "#format"       "{1:s},{2:s},{3:s},{4:s},{5:s}"
         "en"            "{1} This server is running {2}Ghost{3}! Type {4}/ghost{5}."
+        "pt"            "{1} Este servidor está executando o {2}Ghost{3}! Digite: {4}!ghost{5}."
     }
 
     "DeathMsg"
     {
         "#format"       "{1:s},{2:s},{3:s}"
         "en"            "{1} Type {2}/ghost{3} to respawn as a ghost!"
+        "pt"            "{1}Digite? {2}!ghost {3}para reaparecer como um fantasma!"
     }
 
     "RespawnOnTouch"
     {
         "#format"       "{1:s},{2:s},{3:s},{4:s}"
         "en"            "{1} You were respawned for touching a {2}{3}{4}."
+        "pt"            "{1} Você foi respawned por tocar em um {2}{3}{4}."
     }
 
     "RespawnOnBlock"
     {
         "#format"       "{1:s},{2:s},{3:s},{4:s},{5:s}"
         "en"            "{1} You were respawned for {2}blocking{3} a {4}door{5}!"
+        "pt"            "{1} Você foi respawned por {2}bloquear {3}uma {4}porta{5}!"
     }
 
     "SavedLocation"
     {
         "#format"       "{1:s}"
         "en"            "{1} Saved Location!"
+        "pt"            "{1} Local salvo!"
     }
 
     "SaveLocationFirst"
     {
         "#format"       "{1:s}"
         "en"            "{1} Save a location first!"
+        "pt"            "{1} Salve um local primeiro!"
     }
 
     "TeleportedToLocation"
     {
         "#format"       "{1:s}"
         "en"            "{1} Teleported to your saved location!"
+        "pt"            "{1} Teleportado para o seu local salvo!"
     }
 
     "EnabledNoclip"
     {
         "#format"       "{1:s}{2:s}{3:s}"
         "en"            "{1} Enabled {2}Noclip{3}!"
+        "pt"            "{1} Ativado {2}Noclip{3}!"
     }
 
     "DisabledNoclip"
     {
         "#format"       "{1:s}{2:s}{3:s}"
         "en"            "{1} Disabled {2}Noclip{3}!"
+        "pt"            "{1} Desativado {2}Noclip{3}!"
     }
 
     "EnabledBhop"
     {
         "#format"       "{1:s}{2:s}{3:s}"
         "en"            "{1} Enabled {2}Bhop{3}!"
+        "pt"            "{1} Ativado {2}Bhop{3}!"
     }
 
     "DisabledBhop"
     {
         "#format"       "{1:s}{2:s}{3:s}"
         "en"            "{1} Disabled {2}Bhop{3}!"
+        "pt"            "{1} Desativado {2}Bhop{3}!"
     }
 
     "EnabledSpeed"
     {
         "#format"       "{1:s}{2:s}{3:s}"
         "en"            "{1} Enabled {2}Unlimited Speed{3}!"
+        "pt"            "{1} Ativado {2}Unlimited Speed{3}!"
     }
     
     "DisabledSpeed"
     {
         "#format"       "{1:s}{2:s}{3:s}"
         "en"            "{1} Disabled {2}Unlimited Speed{3}!"
+        "pt"            "{1} Desativado {2}Unlimited Speed{3}!"
     }
 
     "GhostDisabled"
     {
         "#format"       "{1:s}{2:s}{3:s}"
         "en"            "{1} {2}Ghost{3} has been temporarily disabled on this server."
+        "pt"            "{1} {2}Ghost{3} foi desativado temporariamente neste servidor."
     }
 
     "NotGhost"
     {
         "#format"       "{1:s}{2:s}{3:s}"
         "en"            "{1} You must be a {2}Ghost{3} to use this command."
+        "pt"            "{1} Você deve ser um {2}Ghost {3}para usar este comando."
     }
 
     "WaitForNextRound"
     {
         "#format"       "{1:s}"
         "en"            "{1} Please wait for the round to begin."
+        "pt"            "{1} Por favor, aguarde o início do round."
     }
 
     "WarmupDisabled"
     {
         "#format"       "{1:s}{2:s}{3:s}"
         "en"            "{1} {2}Ghost{3} is disabled during warmup."
+        "pt"            "{1} {2}Ghost{3} é desativado durante o aquecimento."
     }
 
     "NotValidClient"
     {
         "#format"       "{1:s}{2:s}{3:s}"
         "en"            "{1} You must be a valid client in order to use {2}Ghost{3}."
+        "pt"            "{1} Você deve ser um player válido para poder usar {2}Ghost{3}."
     }
 
     "NotDead"
     {
         "#format"       "{1:s}{2:s}{3:s}"
         "en"            "{1} You must be dead in order to use {2}Ghost{3}."
+        "pt"            "{1} Você deve estar morto para poder usar {2}Ghost{3}."
     }
 
     "CommandCooldown"
     {
         "#format"       "{1:s}{2:s}{3:i}{4:s}"
         "en"            "{1} Too many commands issued! Please wait {2}{3} seconds{4} before using that command again."
+        "pt"            "{1} Muitos comandos emitidos! Por favor, aguarde {2}{3} segundos{4} antes de usar esse comando novamente."
     }
 
     "OpeningMenu"
     {
         "#format"       "{1:s}"
         "en"            "{1} Opening Menu..."
+        "pt"            "{1} Abrindo Menu..."
     }
 
     "Ghost"
     {
         "#format"       "{1:s}{2:s}{3:s}"
         "en"            "{1} Respawned as a {2}ghost{3}."
+        "pt"            "{1} Respawned como {2}Ghost{3}."
     }
 
     "Unghost"
     {
         "#format"       "{1:s}{2:s}{3:s}"
         "en"            "{1} Returned to {2}spectator{3}."
+        "pt"            "{1} Retornado para {2}Spectator{3}."
     }
 
     "MenuTitle"
     {
         "en"            "Ghost Menu"
+        "pt"            "Ghost Menu"
     }
 
     "MenuItemCheckpoint"
     {
         "en"            "Checkpoint"
+        "pt"            "Checkpoint"
     }
 
     "MenuItemTeleport"
     {
         "en"            "Teleport"
+        "pt"            "Teleport"
     }
 
     "MenuItemNoclip"
     {
         "en"            "Noclip (R)"
+        "pt"            "Noclip (R)"
     }
 
     "MenuItemNoclipDisabled"
     {
         "en"            "Noclip (Disabled)"
+        "pt"            "Noclip (Desativado)"
     }
     "MenuItemBhop"
     {
         "en"            "Auto Bhop"
+        "pt"            "Auto Bhop"
     }
 
     "MenuItemBhopDisabled"
     {
         "en"            "Auto Bhop (Disabled)"
+        "pt"            "Auto Bhop (Desativado)"
     }
 
     "MenuItemSpeed"
     {
         "en"            "Speed"
+        "pt"            "Speed"
     }
 
     "MenuItemSpeedDisabled"
     {
         "en"            "Speed (Disabled)"
+        "pt"            "Speed (Desativado)"
     }
 
     "MenuItemExit"
     {
         "en"            "Exit"
+        "pt"            "Sair"
     }
 }
