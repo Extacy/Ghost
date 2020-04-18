@@ -1,0 +1,9 @@
+"Phrases"
+{
+    "Advert"
+    {
+	    // PrintToChatAll("%s This server is running %sGhost%s! Type %s/ghost%s", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR, CHAT_ACCENT, CHAT_COLOR);
+        "#format"       "{1:s},{2:s},{3:s},{4:s},{5:s}"
+        "en"            "{1} This server is running {2}Ghost{3}! Type {4}/ghost{5}."
+    }
+}
