@@ -36,7 +36,7 @@ public Plugin myinfo =
 {
 	name = "Ghost", 
 	author = "Extacy", 
-	description = "Improved Redie.", 
+	description = "Allow players to respawn as Ghost when they die.", 
 	version = "1.0", 
 	url = "https://steamcommunity.com/profiles/76561198183032322"
 };
@@ -629,46 +629,63 @@ public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param
 public void ShowPlayerMenu(int client)
 {
 	Panel panel = CreatePanel();
-	panel.SetTitle("Ghost Menu [sm_rmenu]");
+	// panel.SetTitle("Ghost Menu [sm_rmenu]");
 	
-	panel.DrawItem("Checkpoint");
-	panel.DrawItem("Teleport");
+	char buffer[32];
+
+	Format(buffer, sizeof(buffer), "%T", "MenuTitle", client);
+	panel.SetTitle(buffer);
+
+	Format(buffer, sizeof(buffer), "%T", "MenuItemCheckpoint", client);
+	panel.DrawItem(buffer);
+
+	Format(buffer, sizeof(buffer), "%T", "MenuItemTeleport", client);
+	panel.DrawItem(buffer);
 	
 	panel.DrawText(" ");
 	if (g_cGhostNoclip.BoolValue)
 	{
 		if (g_bNoclipEnabled[client])
-			panel.DrawItem("[✔] Noclip (R)");
+			Format(buffer, sizeof(buffer), "[✔] %T", "MenuItemNoclip", client);
 		else
-			panel.DrawItem("[X] Noclip (R)");
+			Format(buffer, sizeof(buffer), "[X] %T", "MenuItemNoclip", client);
+		
+		panel.DrawItem(buffer);
 	}
 	else
 	{
-		panel.DrawItem("[X] Noclip (Disabled)", ITEMDRAW_DISABLED);
+		Format(buffer, sizeof(buffer), "[X] %T", "MenuItemNoclipDisabled", client);
+		panel.DrawItem(buffer, ITEMDRAW_DISABLED);
 	}
 	
 	if (g_cGhostBhop.BoolValue)
 	{
 		if (g_bBhopEnabled[client])
-			panel.DrawItem("[✔] Auto Bhop");
+			Format(buffer, sizeof(buffer), "[✔] %T", "MenuItemBhop", client);
 		else
-			panel.DrawItem("[X] Auto Bhop");
+			Format(buffer, sizeof(buffer), "[X] %T", "MenuItemBhop", client);
+		
+		panel.DrawItem(buffer);
 	}
 	else
 	{
-		panel.DrawItem("[X] Auto Bhop (Disabled)", ITEMDRAW_DISABLED);
+		Format(buffer, sizeof(buffer), "[X] %T", "MenuItemBhopDisabled", client);
+		panel.DrawItem(buffer, ITEMDRAW_DISABLED);
 	}
 	
 	if (g_cGhostSpeed.BoolValue)
 	{
 		if (g_bSpeedEnabled[client])
-			panel.DrawItem("[✔] Speed");
+			Format(buffer, sizeof(buffer), "[✔] %T", "MenuItemSpeed", client);
 		else
-			panel.DrawItem("[X] Speed");
+			Format(buffer, sizeof(buffer), "[X] %T", "MenuItemSpeed", client);
+		
+		panel.DrawItem(buffer);
 	}
 	else
 	{
-		panel.DrawItem("[X] Speed (Disabled)", ITEMDRAW_DISABLED);
+		Format(buffer, sizeof(buffer), "[X] %T", "MenuItemSpeedDisabled", client);
+		panel.DrawItem(buffer, ITEMDRAW_DISABLED);
 	}
 	
 	panel.DrawItem("", ITEMDRAW_NOTEXT);
@@ -676,7 +693,8 @@ public void ShowPlayerMenu(int client)
 	panel.DrawItem("", ITEMDRAW_NOTEXT);
 	panel.DrawText(" ");
 	
-	panel.DrawItem("Exit");
+	Format(buffer, sizeof(buffer), "%T", "MenuItemExit", client);
+	panel.DrawItem(buffer);
 	panel.Send(client, PlayerMenuHandler, MENU_TIME_FOREVER);
 	delete panel;
 }

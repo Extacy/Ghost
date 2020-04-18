@@ -137,4 +137,53 @@
         "#format"       "{1:s}{2:s}{3:s}"
         "en"            "{1} Returned to {2}spectator{3}."
     }
+
+    "MenuTitle"
+    {
+        "en"            "Ghost Menu"
+    }
+
+    "MenuItemCheckpoint"
+    {
+        "en"            "Checkpoint"
+    }
+
+    "MenuItemTeleport"
+    {
+        "en"            "Teleport"
+    }
+
+    "MenuItemNoclip"
+    {
+        "en"            "Noclip (R)"
+    }
+
+    "MenuItemNoclipDisabled"
+    {
+        "en"            "Noclip (Disabled)"
+    }
+    "MenuItemBhop"
+    {
+        "en"            "Auto Bhop"
+    }
+
+    "MenuItemBhopDisabled"
+    {
+        "en"            "Auto Bhop (Disabled)"
+    }
+
+    "MenuItemSpeed"
+    {
+        "en"            "Speed"
+    }
+
+    "MenuItemSpeedDisabled"
+    {
+        "en"            "Speed (Disabled)"
+    }
+
+    "MenuItemExit"
+    {
+        "en"            "Exit"
+    }
 }
