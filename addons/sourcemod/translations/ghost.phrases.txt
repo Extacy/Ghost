@@ -123,7 +123,7 @@
     "Ghost"
     {
         "#format"       "{1:s}{2:s}{3:s}"
-        "en"            "%s Respawned as a %sghost%s."
+        "en"            "{1} Respawned as a {2}ghost{3}."
     }
 
     "Unghost"
