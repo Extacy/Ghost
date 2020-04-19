@@ -31,6 +31,7 @@
 
 // ConVars
 ConVar g_cPluginEnabled;
+ConVar g_cUnghostEnabled;
 ConVar g_cGhostBhop;
 ConVar g_cGhostSpeed;
 ConVar g_cGhostNoclip;
@@ -67,6 +68,7 @@ public void OnPluginStart()
 	LoadTranslations("ghost.phrases");
 
 	g_cPluginEnabled = CreateConVar("sm_ghost_enabled", "1", "Set whether Ghost is enabled on the server.");
+	g_cUnghostEnabled = CreateConVar("sm_ghost_unghost_enabled", "1", "Set whether !unghost and !unredie is enabled on the server.");
 	g_cGhostBhop = CreateConVar("sm_ghost_bhop", "1", "Set whether ghosts can autobhop.");
 	g_cGhostSpeed = CreateConVar("sm_ghost_speed", "1", "Set whether ghosts can use unlimited speed (sv_enablebunnyhopping)");
 	g_cGhostNoclip = CreateConVar("sm_ghost_noclip", "1", "Set whether ghosts can noclip.");
@@ -206,6 +208,12 @@ public Action CMD_Unghost(int client, int args)
 	if (!g_cPluginEnabled.BoolValue)
 	{
 		PrintToChat(client, "%t", "GhostDisabled", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
+		return Plugin_Handled;
+	}
+	
+	if (!g_cUnghostEnabled.BoolValue)
+	{
+		PrintToChat(client, "%t", "UnghostDisabled", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
 		return Plugin_Handled;
 	}
 	

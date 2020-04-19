@@ -98,6 +98,13 @@
         "pt"            "{1} {2}Ghost{3} foi desativado temporariamente neste servidor."
     }
 
+    "UnghostDisabled"
+    {
+        "#format"       "{1:s}{2:s}{3:s}"
+        "en"            "{1} {2}Unghost{3} has been temporarily disabled on this server."
+        "pt"            "{1} {2}Unghost{3} foi desativado temporariamente neste servidor."
+    }
+
     "NotGhost"
     {
         "#format"       "{1:s}{2:s}{3:s}"
