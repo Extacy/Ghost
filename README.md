@@ -12,6 +12,7 @@ alt="Ghost Test Video" width="240" height="180" border="10" /></a>
 * Working Unghost / Unredie
 * Working trigger_teleports
 * Players have access to a menu to toggle their own settings as a ghost. [\[IMG\]](https://i.imgur.com/QOz3Gwt.png)
+* English, Russian, and Portuguese translations 
 
 ## Commands
 * sm_ghost / sm_redie -> Turn into a ghost after you die
