@@ -21,6 +21,7 @@
 #include <cstrike>
 #include <sdktools>
 #include <sdkhooks>
+#include <multicolors>
 
 #pragma newdecls required
 #pragma semicolon 1
@@ -162,38 +163,38 @@ public Action CMD_Ghost(int client, int args)
 {
 	if (!g_cPluginEnabled.BoolValue)
 	{
-		PrintToChat(client, "%t", "GhostDisabled", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
+		CPrintToChat(client, "%t %t", "ChatTag", "GhostDisabled");
 		return Plugin_Handled;
 	}
 	
 	if (g_bPluginBlocked)
 	{
-		PrintToChat(client, "%t", "WaitForNextRound", CHAT_PREFIX);
+		CPrintToChat(client, "%t %t", "ChatTag", "WaitForNextRound");
 		return Plugin_Handled;
 	}
 	
 	if (GameRules_GetProp("m_bWarmupPeriod"))
 	{
-		PrintToChat(client, "%t", "WarmupDisabled", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
+		CPrintToChat(client, "%t %t", "ChatTag", "WarmupDisabled");
 		return Plugin_Handled;
 	}
 	
 	if (!IsValidClient(client))
 	{
-		PrintToChat(client, "%t", "NotValidClient", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
+		CPrintToChat(client, "%t %t", "ChatTag", "NotValidClient");
 		return Plugin_Handled;
 	}
 	
 	if (IsPlayerAlive(client))
 	{
-		PrintToChat(client, "%t", "NotDead", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
+		CPrintToChat(client, "%t %t", "ChatTag", "NotDead");
 		return Plugin_Handled;
 	}
 	
 	int time = GetTime();
 	if (time - g_iLastUsedCommand[client] < g_iCoolDownTimer)
 	{
-		PrintToChat(client, "%t", "CommandCooldown", CHAT_PREFIX, CHAT_ACCENT, g_iCoolDownTimer - (time - g_iLastUsedCommand[client]), CHAT_COLOR);
+		CPrintToChat(client, "%t %t", "ChatTag", "CommandCooldown", g_iCoolDownTimer - (time - g_iLastUsedCommand[client]));
 		return Plugin_Handled;
 	}
 	
@@ -207,32 +208,32 @@ public Action CMD_Unghost(int client, int args)
 {
 	if (!g_cPluginEnabled.BoolValue)
 	{
-		PrintToChat(client, "%t", "GhostDisabled", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
+		CPrintToChat(client, "%t %t", "ChatTag", "GhostDisabled");
 		return Plugin_Handled;
 	}
 	
 	if (!g_cUnghostEnabled.BoolValue)
 	{
-		PrintToChat(client, "%t", "UnghostDisabled", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
+		CPrintToChat(client, "%t %t", "ChatTag", "UnghostDisabled");
 		return Plugin_Handled;
 	}
 	
 	if (!g_bIsGhost[client])
 	{
-		PrintToChat(client, "%t", "NotGhost", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
+		CPrintToChat(client, "%t %t", "ChatTag", "NotGhost");
 		return Plugin_Handled;
 	}
 	
 	if (g_bPluginBlocked)
 	{
-		PrintToChat(client, "%t", "WaitForNextRound", CHAT_PREFIX);
+		CPrintToChat(client, "%t %t", "ChatTag", "WaitForNextRound", CHAT_PREFIX);
 		return Plugin_Handled;
 	}
 	
 	int time = GetTime();
 	if (time - g_iLastUsedCommand[client] < g_iCoolDownTimer)
 	{
-		PrintToChat(client, "%t", "CommandCooldown", CHAT_PREFIX, CHAT_ACCENT, g_iCoolDownTimer - (time - g_iLastUsedCommand[client]), CHAT_COLOR);
+		CPrintToChat(client, "%t %t", "ChatTag", "CommandCooldown", g_iCoolDownTimer - (time - g_iLastUsedCommand[client]));
 		return Plugin_Handled;
 	}
 	
@@ -245,12 +246,12 @@ public Action CMD_GhostMenu(int client, int args)
 {
 	if (!g_bIsGhost[client])
 	{
-		PrintToChat(client, "%t", "NotGhost", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
+		CPrintToChat(client, "%t %t", "ChatTag", "NotGhost");
 		return Plugin_Handled;
 	}
 
 	ShowPlayerMenu(client);
-	PrintToChat(client, "%t", "OpeningMenu", CHAT_PREFIX);
+	CPrintToChat(client, "%t %t", "ChatTag", "OpeningMenu", CHAT_PREFIX);
 	return Plugin_Handled;
 }
 
@@ -280,7 +281,7 @@ public Action Event_PrePlayerDeath(Event event, const char[] name, bool dontBroa
 		return Plugin_Handled;
 	}
 	
-	PrintToChat(client, "%t", "DeathMsg", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
+	CPrintToChat(client, "%t %t", "ChatTag", "DeathMsg");
 
 	return Plugin_Continue;
 }
@@ -371,7 +372,7 @@ public Action Timer_ResetValue(Handle timer, any userid)
 public Action Timer_ChatAdvert(Handle timer)
 {
 	if (g_cChatAdverts.BoolValue)
-		PrintToChatAll("%t", "Advert", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR, CHAT_ACCENT, CHAT_COLOR);
+		CPrintToChatAll("%t", "Advert");
 	
 	return Plugin_Continue;
 }
@@ -386,7 +387,7 @@ public Action RespawnOnTouch(int entity, int client)
 		char classname[64];
 		GetEntityClassname(entity, classname, sizeof(classname));
 		
-		PrintToChat(client, "RespawnOnTouch", CHAT_PREFIX, CHAT_ACCENT, classname, CHAT_COLOR);
+		CPrintToChat(client, "RespawnOnTouch", classname);
 		return Plugin_Handled;
 	}
 		
@@ -478,7 +479,7 @@ public Action Timer_ForceClose(Handle timer, DataPack pack)
 	if (StrEqual(targetname, ""))
 	{
 		AcceptEntityInput(entity, "Close");
-		PrintToChat(client, "%t", "RespawnOnBlock", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR, CHAT_ACCENT, CHAT_COLOR);
+		CPrintToChat(client, "%t %t", "ChatTag", "RespawnOnBlock");
 
 		Ghost(client);
 	}
@@ -492,7 +493,7 @@ public Action Timer_ForceClose(Handle timer, DataPack pack)
 			if (StrEqual(targetname, buffer))
 			{
 				AcceptEntityInput(ent, "Close");
-				PrintToChat(client, "%t", "RespawnOnBlock", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR, CHAT_ACCENT, CHAT_COLOR);
+				CPrintToChat(client, "%t %t", "ChatTag", "RespawnOnBlock");
 				Ghost(client);
 			}
 		}
@@ -533,7 +534,7 @@ public void Ghost(int client)
 	SetEntProp(client, Prop_Data, "m_ArmorValue", 0);
 	SetEntProp(client, Prop_Send, "m_bHasDefuser", 0);
 	
-	PrintToChat(client, "%t", "Ghost", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
+	CPrintToChat(client, "%t %t", "ChatTag", "Ghost");
 }
 
 public void Unghost(int client)
@@ -545,7 +546,7 @@ public void Unghost(int client)
 		SetEntProp(client, Prop_Data, "m_iDeaths", GetClientDeaths(client) - 1);
 		ForcePlayerSuicide(client);
 		
-		PrintToChat(client, "%t", "Unghost", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
+		CPrintToChat(client, "%t %t", "ChatTag", "Unghost");
 	}
 }
 
@@ -563,18 +564,18 @@ public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param
 				case 1:
 				{
 					GetClientAbsOrigin(param1, vSavedLocation[param1]);
-					PrintToChat(param1, "%t", "SavedLocation", CHAT_PREFIX);
+					CPrintToChat(param1, "%t", "SavedLocation");
 				}
 				case 2:
 				{
 					if (IsVectorZero(vSavedLocation[param1]))
 					{
-						PrintToChat(param1, "%t", "SaveLocationFirst", CHAT_PREFIX);
+						CPrintToChat(param1, "%t", "SaveLocationFirst");
 					}
 					else
 					{
 						TeleportEntity(param1, vSavedLocation[param1], NULL_VECTOR, view_as<float>({ -1.0, -1.0, -1.0 }));
-						PrintToChat(param1, "%t", "TeleportedToLocation", CHAT_PREFIX);
+						CPrintToChat(param1, "%t", "TeleportedToLocation");
 					}
 				}
 				case 3:
@@ -585,13 +586,13 @@ public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param
 						{
 							SetEntityMoveType(param1, MOVETYPE_WALK);
 							g_bNoclipEnabled[param1] = false;
-							PrintToChat(param1, "%t", "DisabledNoclip", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
+							CPrintToChat(param1, "%t", "DisabledNoclip");
 						}
 						else
 						{
 							SetEntityMoveType(param1, MOVETYPE_NOCLIP);
 							g_bNoclipEnabled[param1] = true;
-							PrintToChat(param1, "%t", "EnabledNoclip", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
+							CPrintToChat(param1, "%t", "EnabledNoclip");
 						}
 					}
 					else
@@ -607,13 +608,13 @@ public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param
 						{
 							g_bBhopEnabled[param1] = false;
 							SendConVarValue(param1, sv_autobunnyhopping, "0");
-							PrintToChat(param1, "%t", "DisabledBhop", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
+							CPrintToChat(param1, "%t", "DisabledBhop");
 						}
 						else
 						{
 							g_bBhopEnabled[param1] = true;
 							SendConVarValue(param1, sv_autobunnyhopping, "1");
-							PrintToChat(param1, "%t", "EnabledBhop", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
+							CPrintToChat(param1, "%t", "EnabledBhop");
 						}
 					}
 				}
@@ -625,13 +626,13 @@ public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param
 						{
 							g_bSpeedEnabled[param1] = false;
 							SendConVarValue(param1, sv_enablebunnyhopping, "0");
-							PrintToChat(param1, "%t", "DisabledSpeed", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
+							CPrintToChat(param1, "%t", "DisabledSpeed");
 						}
 						else
 						{
 							g_bSpeedEnabled[param1] = true;
 							SendConVarValue(param1, sv_enablebunnyhopping, "1");
-							PrintToChat(param1, "%t", "EnabledSpeed", CHAT_PREFIX, CHAT_ACCENT, CHAT_COLOR);
+							CPrintToChat(param1, "%t", "EnabledSpeed");
 						}
 					}
 				}

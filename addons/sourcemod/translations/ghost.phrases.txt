@@ -1,171 +1,155 @@
 "Phrases"
 {
+    "ChatTag"
+    {
+        "en"            "{lightred}[{default}Ghost{lightred}]{default}"
+        "pt"            "{lightred}[{default}Ghost{lightred}]{default}"
+    }
+
     "Advert"
     {
-        "#format"       "{1:s},{2:s},{3:s},{4:s},{5:s}"
-        "en"            "{1} This server is running {2}Ghost{3}! Type {4}/ghost{5}."
-        "pt"            "{1} Este servidor está executando o {2}Ghost{3}! Digite: {4}!ghost{5}."
+        "en"            "This server is running {lightred}Ghost{default}! Type {lightred}/ghost{default}."
+        "pt"            "Este servidor está executando o {lightred}Ghost{default}! Digite: {lightred}!ghost{default}."
     }
 
     "DeathMsg"
     {
-        "#format"       "{1:s},{2:s},{3:s}"
-        "en"            "{1} Type {2}/ghost{3} to respawn as a ghost!"
-        "pt"            "{1}Digite? {2}!ghost {3}para reaparecer como um fantasma!"
+        "en"            "Type {lightred}/ghost{default} to respawn as a ghost!"
+        "pt"            "{lightred}[{default}Ghost{lightred}]{default}Digite? {lightred}!ghost {default}para reaparecer como um fantasma!"
     }
 
     "RespawnOnTouch"
     {
-        "#format"       "{1:s},{2:s},{3:s},{4:s}"
-        "en"            "{1} You were respawned for touching a {2}{3}{4}."
-        "pt"            "{1} Você foi respawned por tocar em um {2}{3}{4}."
+        "#format"       "{1:s}"
+        "en"            "You were respawned for touching a {lightred}{1}{default}."
+        "pt"            "Você foi respawned por tocar em um {lightred}{1}{default}."
     }
 
     "RespawnOnBlock"
     {
-        "#format"       "{1:s},{2:s},{3:s},{4:s},{5:s}"
-        "en"            "{1} You were respawned for {2}blocking{3} a {4}door{5}!"
-        "pt"            "{1} Você foi respawned por {2}bloquear {3}uma {4}porta{5}!"
+        "en"            "You were respawned for {lightred}blocking{default} a{lightred} door{default}!"
+        "pt"            "Você foi respawned por {lightred}bloquear{default} uma{lightred} porta{default}!"
     }
 
     "SavedLocation"
     {
-        "#format"       "{1:s}"
-        "en"            "{1} Saved Location!"
-        "pt"            "{1} Local salvo!"
+        "en"            "Saved Location!"
+        "pt"            "Local salvo!"
     }
 
     "SaveLocationFirst"
     {
-        "#format"       "{1:s}"
-        "en"            "{1} Save a location first!"
-        "pt"            "{1} Salve um local primeiro!"
+        "en"            "Save a location first!"
+        "pt"            "Salve um local primeiro!"
     }
 
     "TeleportedToLocation"
     {
-        "#format"       "{1:s}"
-        "en"            "{1} Teleported to your saved location!"
-        "pt"            "{1} Teleportado para o seu local salvo!"
+        "en"            "Teleported to your saved location!"
+        "pt"            "Teleportado para o seu local salvo!"
     }
 
     "EnabledNoclip"
     {
-        "#format"       "{1:s}{2:s}{3:s}"
-        "en"            "{1} Enabled {2}Noclip{3}!"
-        "pt"            "{1} Ativado {2}Noclip{3}!"
+        "en"            "Enabled {lightred}Noclip{default}!"
+        "pt"            "Ativado {lightred}Noclip{default}!"
     }
 
     "DisabledNoclip"
     {
-        "#format"       "{1:s}{2:s}{3:s}"
-        "en"            "{1} Disabled {2}Noclip{3}!"
-        "pt"            "{1} Desativado {2}Noclip{3}!"
+        "en"            "Disabled {lightred}Noclip{default}!"
+        "pt"            "Desativado {lightred}Noclip{default}!"
     }
 
     "EnabledBhop"
     {
-        "#format"       "{1:s}{2:s}{3:s}"
-        "en"            "{1} Enabled {2}Bhop{3}!"
-        "pt"            "{1} Ativado {2}Bhop{3}!"
+        "en"            "Enabled {lightred}Bhop{default}!"
+        "pt"            "Ativado {lightred}Bhop{default}!"
     }
 
     "DisabledBhop"
     {
-        "#format"       "{1:s}{2:s}{3:s}"
-        "en"            "{1} Disabled {2}Bhop{3}!"
-        "pt"            "{1} Desativado {2}Bhop{3}!"
+        "en"            "Disabled {lightred}Bhop{default}!"
+        "pt"            "Desativado {lightred}Bhop{default}!"
     }
 
     "EnabledSpeed"
     {
-        "#format"       "{1:s}{2:s}{3:s}"
-        "en"            "{1} Enabled {2}Unlimited Speed{3}!"
-        "pt"            "{1} Ativado {2}Unlimited Speed{3}!"
+        "en"            "Enabled {lightred}Unlimited Speed{default}!"
+        "pt"            "Ativado {lightred}Unlimited Speed{default}!"
     }
     
     "DisabledSpeed"
     {
-        "#format"       "{1:s}{2:s}{3:s}"
-        "en"            "{1} Disabled {2}Unlimited Speed{3}!"
-        "pt"            "{1} Desativado {2}Unlimited Speed{3}!"
+        "en"            "Disabled {lightred}Unlimited Speed{default}!"
+        "pt"            "Desativado {lightred}Unlimited Speed{default}!"
     }
 
     "GhostDisabled"
     {
-        "#format"       "{1:s}{2:s}{3:s}"
-        "en"            "{1} {2}Ghost{3} has been temporarily disabled on this server."
-        "pt"            "{1} {2}Ghost{3} foi desativado temporariamente neste servidor."
+        "en"            "{lightred}Ghost{default} has been temporarily disabled on this server."
+        "pt"            "{lightred}Ghost{default} foi desativado temporariamente neste servidor."
     }
 
     "UnghostDisabled"
     {
-        "#format"       "{1:s}{2:s}{3:s}"
-        "en"            "{1} {2}Unghost{3} has been temporarily disabled on this server."
-        "pt"            "{1} {2}Unghost{3} foi desativado temporariamente neste servidor."
+        "en"            "{lightred}Unghost{default} has been temporarily disabled on this server."
+        "pt"            "{lightred}Unghost{default} foi desativado temporariamente neste servidor."
     }
 
     "NotGhost"
     {
-        "#format"       "{1:s}{2:s}{3:s}"
-        "en"            "{1} You must be a {2}Ghost{3} to use this command."
-        "pt"            "{1} Você deve ser um {2}Ghost {3}para usar este comando."
+        "en"            "You must be a {lightred}Ghost{default} to use this command."
+        "pt"            "Você deve ser um {lightred}Ghost{default} para usar este comando."
     }
 
     "WaitForNextRound"
     {
-        "#format"       "{1:s}"
-        "en"            "{1} Please wait for the round to begin."
-        "pt"            "{1} Por favor, aguarde o início do round."
+        "en"            "Please wait for the round to begin."
+        "pt"            "Por favor, aguarde o início do round."
     }
 
     "WarmupDisabled"
     {
-        "#format"       "{1:s}{2:s}{3:s}"
-        "en"            "{1} {2}Ghost{3} is disabled during warmup."
-        "pt"            "{1} {2}Ghost{3} é desativado durante o aquecimento."
+        "en"            "{lightred}Ghost{3} is disabled during warmup."
+        "pt"            "{lightred}Ghost{3} é desativado durante o aquecimento."
     }
 
     "NotValidClient"
     {
-        "#format"       "{1:s}{2:s}{3:s}"
-        "en"            "{1} You must be a valid client in order to use {2}Ghost{3}."
-        "pt"            "{1} Você deve ser um player válido para poder usar {2}Ghost{3}."
+        "en"            "You must be a valid client in order to use {lightred}Ghost{default}."
+        "pt"            "Você deve ser um player válido para poder usar {lightred}Ghost{default}."
     }
 
     "NotDead"
     {
-        "#format"       "{1:s}{2:s}{3:s}"
-        "en"            "{1} You must be dead in order to use {2}Ghost{3}."
-        "pt"            "{1} Você deve estar morto para poder usar {2}Ghost{3}."
+        "en"            "You must be dead in order to use {lightred}Ghost{default}."
+        "pt"            "Você deve estar morto para poder usar {lightred}Ghost{default}."
     }
 
     "CommandCooldown"
     {
-        "#format"       "{1:s}{2:s}{3:i}{4:s}"
-        "en"            "{1} Too many commands issued! Please wait {2}{3} seconds{4} before using that command again."
-        "pt"            "{1} Muitos comandos emitidos! Por favor, aguarde {2}{3} segundos{4} antes de usar esse comando novamente."
+        "#format"       "{1:i}"
+        "en"            "Too many commands issued! Please wait {lightred}{1} seconds{default} before using that command again."
+        "pt"            "Muitos comandos emitidos! Por favor, aguarde {lightred}{1} segundos{default} antes de usar esse comando novamente."
     }
 
     "OpeningMenu"
     {
-        "#format"       "{1:s}"
-        "en"            "{1} Opening Menu..."
-        "pt"            "{1} Abrindo Menu..."
+        "en"            "Opening Menu..."
+        "pt"            "Abrindo Menu..."
     }
 
     "Ghost"
     {
-        "#format"       "{1:s}{2:s}{3:s}"
-        "en"            "{1} Respawned as a {2}ghost{3}."
-        "pt"            "{1} Respawned como {2}Ghost{3}."
+        "en"            "Respawned as a {lightred}Ghost{default}."
+        "pt"            "Respawned como {lightred}Ghost{default}."
     }
 
     "Unghost"
     {
-        "#format"       "{1:s}{2:s}{3:s}"
-        "en"            "{1} Returned to {2}spectator{3}."
-        "pt"            "{1} Retornado para {2}Spectator{3}."
+        "en"            "Returned to {lightred}spectator{default}."
+        "pt"            "Retornado para {lightred}Spectator{default}."
     }
 
     "MenuTitle"
