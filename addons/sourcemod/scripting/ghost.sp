@@ -128,7 +128,6 @@ public void OnClientPutInServer(int client)
 		g_bSpeedEnabled[client] = false;
 		g_bNoclipEnabled[client] = false;
 		
-		SDKHook(client, SDKHook_PreThink, Hook_PreThink);
 		SDKHook(client, SDKHook_WeaponCanUse, Hook_WeaponCanUse);
 	}
 }
@@ -425,18 +424,6 @@ public Action FakeTriggerTeleport(int entity, int client)
 		}
 		return Plugin_Handled;
 	}
-	return Plugin_Continue;
-}
-
-// Auto bhop / Unlimited Speed
-public Action Hook_PreThink(int client)
-{
-	if (g_cGhostBhop.BoolValue) 
-		SetConVarBool(sv_autobunnyhopping, g_bBhopEnabled[client]);
-
-	if (g_cGhostSpeed.BoolValue)
-		SetConVarBool(sv_enablebunnyhopping, g_bSpeedEnabled[client]);
-	
 	return Plugin_Continue;
 }
 
@@ -749,6 +736,19 @@ public Action OnPlayerRunCmd(int client, int & buttons, int & impulse, float vel
 				g_bNoclipEnabled[client] = false;
 			}
 			g_iLastButtons[client] = buttons;
+		}
+		
+		if (g_cGhostBhop.BoolValue && g_bBhopEnabled[client])
+		{
+			//Based off AbNeR's bhop code
+			if(buttons & IN_JUMP)
+			{
+				if(GetEntProp(client, Prop_Data, "m_nWaterLevel") <= 1 && !(GetEntityMoveType(client) & MOVETYPE_LADDER) && !(GetEntityFlags(client) & FL_ONGROUND))
+				{
+					SetEntPropFloat(client, Prop_Send, "m_flStamina", 0.0);
+					buttons &= ~IN_JUMP;
+				}
+			}
 		}
 	}
 	
