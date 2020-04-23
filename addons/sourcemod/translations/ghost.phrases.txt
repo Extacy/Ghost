@@ -179,9 +179,9 @@
 
     "MenuTitle"
     {
-        "en"            "Ghost Menu"
-        "pt"            "Ghost Menu"
-        "ru"            "Призрачное меню"
+        "en"            "Ghost Menu [sm_rmenu]"
+        "pt"            "Ghost Menu [sm_rmenu]"
+        "ru"            "Призрачное меню [/rmenu]"
     }
 
     "MenuItemCheckpoint"
