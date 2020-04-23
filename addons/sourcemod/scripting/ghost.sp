@@ -26,10 +26,6 @@
 #pragma newdecls required
 #pragma semicolon 1
 
-#define CHAT_PREFIX " \x02[\x01Ghost\x02]\x01" 
-#define CHAT_COLOR "\x01"
-#define CHAT_ACCENT "\x0F"
-
 // ConVars
 ConVar g_cPluginEnabled;
 ConVar g_cUnghostEnabled;
@@ -226,7 +222,7 @@ public Action CMD_Unghost(int client, int args)
 	
 	if (g_bPluginBlocked)
 	{
-		CPrintToChat(client, "%t %t", "ChatTag", "WaitForNextRound", CHAT_PREFIX);
+		CPrintToChat(client, "%t %t", "ChatTag", "WaitForNextRound");
 		return Plugin_Handled;
 	}
 	
@@ -251,7 +247,7 @@ public Action CMD_GhostMenu(int client, int args)
 	}
 
 	ShowPlayerMenu(client);
-	CPrintToChat(client, "%t %t", "ChatTag", "OpeningMenu", CHAT_PREFIX);
+	CPrintToChat(client, "%t %t", "ChatTag", "OpeningMenu");
 	return Plugin_Handled;
 }
 
@@ -431,11 +427,11 @@ public Action FakeTriggerTeleport(int entity, int client)
 // Auto bhop / Unlimited Speed
 public Action Hook_PreThink(int client)
 {
-	if (g_cGhostBhop.BoolValue) 
-		SetConVarBool(sv_autobunnyhopping, g_bBhopEnabled[client]);
+	// if (g_cGhostBhop.BoolValue) 
+	// 	SetConVarBool(sv_autobunnyhopping, g_bBhopEnabled[client]);
 
-	if (g_cGhostSpeed.BoolValue)
-		SetConVarBool(sv_enablebunnyhopping, g_bSpeedEnabled[client]);
+	// if (g_cGhostSpeed.BoolValue)
+	// 	SetConVarBool(sv_enablebunnyhopping, g_bSpeedEnabled[client]);
 	
 	return Plugin_Continue;
 }
