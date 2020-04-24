@@ -40,7 +40,7 @@
     {
         "en"            "Saved Location!"
         "pt"            "Local salvo!"
-        "en"            "Точка сохранена!"
+        "ru"            "Точка сохранена!"
     }
 
     "SaveLocationFirst"
@@ -215,28 +215,28 @@
     {
         "en"            "Auto Bhop"
         "pt"            "Auto Bhop"
-        "pt"            "Auto Bhop"
+        "ru"            "Auto Bhop"
     }
 
     "MenuItemBhopDisabled"
     {
         "en"            "Auto Bhop (Disabled)"
         "pt"            "Auto Bhop (Desativado)"
-        "pt"            "Auto Bhop (Отключено)"
+        "ru"            "Auto Bhop (Отключено)"
     }
 
     "MenuItemSpeed"
     {
         "en"            "Speed"
         "pt"            "Speed"
-        "pt"            "Speed"
+        "ru"            "Speed"
     }
 
     "MenuItemSpeedDisabled"
     {
         "en"            "Speed (Disabled)"
         "pt"            "Speed (Desativado)"
-        "pt"            "Speed (Отключено)"
+        "ru"            "Speed (Отключено)"
     }
 
     "MenuItemExit"
