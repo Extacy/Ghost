@@ -31,17 +31,14 @@ ConVar g_cPluginEnabled;
 ConVar g_cUnghostEnabled;
 
 ConVar g_cBhopServer;
-ConVar g_cSpeedServer;
 
 ConVar g_cGhostBhop;
-ConVar g_cGhostSpeed;
 ConVar g_cGhostNoclip;
 
 ConVar g_cChatAdverts;
 ConVar g_cChatAdvertsInterval;
 
 ConVar sv_autobunnyhopping;
-ConVar sv_enablebunnyhopping;
 
 // Plugin Variables
 bool g_bIsGhost[MAXPLAYERS + 1]; // Current players that are a Ghost
@@ -74,17 +71,14 @@ public void OnPluginStart()
 	g_cUnghostEnabled = CreateConVar("sm_ghost_unghost_enabled", "1", "Set whether !unghost and !unredie is enabled on the server.");
 	
 	g_cBhopServer = CreateConVar("sm_ghost_bhop_server", "0", "If you have sv_autobunnyhopping 1 set this to 1. (Resets this convar on spawn)");
-	g_cSpeedServer = CreateConVar("sm_ghost_speed_server", "0", "If you have sv_enablebunnyhopping 1 set this to 1. (Resets this convar on spawn)");
 	
 	g_cGhostBhop = CreateConVar("sm_ghost_bhop", "1", "Set whether ghosts can autobhop.");
-	g_cGhostSpeed = CreateConVar("sm_ghost_speed", "1", "Set whether ghosts can use unlimited speed (sv_enablebunnyhopping)");
 	g_cGhostNoclip = CreateConVar("sm_ghost_noclip", "1", "Set whether ghosts can noclip.");
 
 	g_cChatAdverts = CreateConVar("sm_ghost_adverts", "1", "Set whether chat adverts are enabled.");
 	g_cChatAdvertsInterval = CreateConVar("sm_ghost_adverts_interval", "120.0", "Interval (in seconds) of chat adverts.");
 	
 	sv_autobunnyhopping = FindConVar("sv_autobunnyhopping");
-	sv_enablebunnyhopping = FindConVar("sv_enablebunnyhopping");
 	
 	HookEvent("round_start", Event_PreRoundStart, EventHookMode_Pre);
 	HookEvent("round_end", Event_PreRoundEnd, EventHookMode_Pre);
@@ -303,24 +297,13 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
 
 		if (g_cBhopServer.BoolValue)
 		{
-			g_bSpeedEnabled[client] = true;
+			g_bBhopEnabled[client] = true;
 			sv_autobunnyhopping.ReplicateToClient(client, "1");
 		}
 		else
 		{
 			g_bBhopEnabled[client] = false;
 			sv_autobunnyhopping.ReplicateToClient(client, "0");
-		}
-
-		if (g_cSpeedServer.BoolValue)
-		{
-			g_bSpeedEnabled[client] = true;
-			sv_enablebunnyhopping.ReplicateToClient(client, "1");
-		}
-		else
-		{
-			g_bSpeedEnabled[client] = false;
-			sv_enablebunnyhopping.ReplicateToClient(client, "0");
 		}
 	}
 }
@@ -616,24 +599,6 @@ public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param
 						}
 					}
 				}
-				case 5:
-				{
-					if (g_cGhostSpeed.BoolValue)
-					{
-						if (g_bSpeedEnabled[param1])
-						{
-							g_bSpeedEnabled[param1] = false;
-							sv_enablebunnyhopping.ReplicateToClient(param1, "0");
-							CPrintToChat(param1, "%t %t", "ChatTag", "DisabledSpeed");
-						}
-						else
-						{
-							g_bSpeedEnabled[param1] = true;
-							sv_enablebunnyhopping.ReplicateToClient(param1, "1");
-							CPrintToChat(param1, "%t %t", "ChatTag", "EnabledSpeed");
-						}
-					}
-				}
 				case 9:
 				{
 					return;
@@ -698,21 +663,7 @@ public void ShowPlayerMenu(int client)
 		panel.DrawItem(buffer, ITEMDRAW_DISABLED);
 	}
 	
-	if (g_cGhostSpeed.BoolValue)
-	{
-		if (g_bSpeedEnabled[client])
-			Format(buffer, sizeof(buffer), "[✔] %T", "MenuItemSpeed", client);
-		else
-			Format(buffer, sizeof(buffer), "[X] %T", "MenuItemSpeed", client);
-		
-		panel.DrawItem(buffer);
-	}
-	else
-	{
-		Format(buffer, sizeof(buffer), "[X] %T", "MenuItemSpeedDisabled", client);
-		panel.DrawItem(buffer, ITEMDRAW_DISABLED);
-	}
-	
+	panel.DrawItem("", ITEMDRAW_NOTEXT);
 	panel.DrawItem("", ITEMDRAW_NOTEXT);
 	panel.DrawItem("", ITEMDRAW_NOTEXT);
 	panel.DrawItem("", ITEMDRAW_NOTEXT);
