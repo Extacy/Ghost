@@ -26,7 +26,7 @@
 #pragma newdecls required
 #pragma semicolon 1
 
-// ConVars
+// Plugin ConVars
 ConVar g_cPluginEnabled;
 ConVar g_cUnghostEnabled;
 
@@ -38,13 +38,13 @@ ConVar g_cGhostNoclip;
 ConVar g_cChatAdverts;
 ConVar g_cChatAdvertsInterval;
 
+// CSGO ConVars
 ConVar sv_autobunnyhopping;
 
 // Plugin Variables
 bool g_bIsGhost[MAXPLAYERS + 1]; // Current players that are a Ghost
 bool g_bSpawning[MAXPLAYERS + 1]; // Ghosts that are spawning in
 bool g_bBhopEnabled[MAXPLAYERS + 1]; // Ghosts that have Bhop Enabled.
-bool g_bSpeedEnabled[MAXPLAYERS + 1]; // Ghosts with unlimited speed enabled (sv_enablebunnyhopping)
 bool g_bNoclipEnabled[MAXPLAYERS + 1]; // Ghosts with noclip enabled
 bool g_bPluginBlocked; // Disable the use of Ghost during freezetime and when the round is about to end.
 
@@ -126,7 +126,6 @@ public void OnClientPutInServer(int client)
 		g_bIsGhost[client] = false;
 		g_bSpawning[client] = false;
 		g_bBhopEnabled[client] = false;
-		g_bSpeedEnabled[client] = false;
 		g_bNoclipEnabled[client] = false;
 		
 		SDKHook(client, SDKHook_WeaponCanUse, Hook_WeaponCanUse);
@@ -264,7 +263,6 @@ public Action Event_PrePlayerDeath(Event event, const char[] name, bool dontBroa
 	if (g_bIsGhost[client])
 	{
 		g_bBhopEnabled[client] = false;
-		g_bSpeedEnabled[client] = false;
 		g_bNoclipEnabled[client] = false;
 
 		CreateTimer(1.0, Timer_ResetValue, userid);
@@ -282,14 +280,12 @@ public Action Event_PrePlayerDeath(Event event, const char[] name, bool dontBroa
 	}
 	
 	CPrintToChat(client, "%t %t", "ChatTag", "DeathMsg");
-
 	return Plugin_Continue;
 }
 
 public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadcast)
 {
 	int client = GetClientOfUserId(event.GetInt("userid"));
-	
 	if (IsValidClient(client))
 	{
 		g_bIsGhost[client] = false;
@@ -311,7 +307,9 @@ public Action Event_PlayerSpawn(Event event, const char[] name, bool dontBroadca
 public Action OnNormalSoundPlayed(int clients[64], int &numClients, char sample[PLATFORM_MAX_PATH], int &entity, int &channel, float &volume, int &level, int &pitch, int &flags)
 {
 	if (IsValidClient(entity) && (g_bSpawning[entity] || g_bIsGhost[entity]))
+	{
 		return Plugin_Handled;
+	}
 	
 	return Plugin_Continue;
 }
@@ -371,7 +369,9 @@ public Action Timer_ResetValue(Handle timer, any userid)
 public Action Timer_ChatAdvert(Handle timer)
 {
 	if (g_cChatAdverts.BoolValue)
+	{
 		CPrintToChatAll("%t %t", "ChatTag", "Advert");
+	}
 	
 	return Plugin_Continue;
 }
@@ -396,7 +396,9 @@ public Action RespawnOnTouch(int entity, int client)
 public Action BlockOnTouch(int entity, int client)
 {
 	if (IsValidClient(client) && g_bIsGhost[client])
+	{
 		return Plugin_Handled;
+	}
 	
 	return Plugin_Continue;
 }
@@ -422,15 +424,19 @@ public Action FakeTriggerTeleport(int entity, int client)
 				break;
 			}
 		}
+
 		return Plugin_Handled;
 	}
+
 	return Plugin_Continue;
 }
 
 public Action Hook_WeaponCanUse(int client, int weapon)
 {
 	if (g_bIsGhost[client])
+	{
 		return Plugin_Handled;
+	}
 	
 	return Plugin_Continue;
 }
@@ -534,12 +540,12 @@ public void Unghost(int client)
 // Menu Handlers
 public int PlayerMenuHandler(Menu menu, MenuAction action, int param1, int param2)
 {
+	static float vSavedLocation[MAXPLAYERS + 1][3];
+
 	if (action == MenuAction_Select)
 	{
 		if (g_bIsGhost[param1])
 		{
-			static float vSavedLocation[MAXPLAYERS + 1][3];
-
 			switch (param2)
 			{
 				case 1:
@@ -636,9 +642,13 @@ public void ShowPlayerMenu(int client)
 	if (g_cGhostNoclip.BoolValue)
 	{
 		if (g_bNoclipEnabled[client])
+		{
 			Format(buffer, sizeof(buffer), "[✔] %T", "MenuItemNoclip", client);
+		}
 		else
+		{
 			Format(buffer, sizeof(buffer), "[X] %T", "MenuItemNoclip", client);
+		}
 		
 		panel.DrawItem(buffer);
 	}
@@ -651,9 +661,13 @@ public void ShowPlayerMenu(int client)
 	if (g_cGhostBhop.BoolValue)
 	{
 		if (g_bBhopEnabled[client])
+		{
 			Format(buffer, sizeof(buffer), "[✔] %T", "MenuItemBhop", client);
+		}
 		else
+		{
 			Format(buffer, sizeof(buffer), "[X] %T", "MenuItemBhop", client);
+		}
 		
 		panel.DrawItem(buffer);
 	}
@@ -697,15 +711,16 @@ public Action OnPlayerRunCmd(int client, int & buttons, int & impulse, float vel
 				SetEntityMoveType(client, MOVETYPE_WALK);
 				g_bNoclipEnabled[client] = false;
 			}
+
 			g_iLastButtons[client] = buttons;
 		}
 
 		if (g_cGhostBhop.BoolValue && g_bBhopEnabled[client])
 		{
-			//Based off AbNeR's bhop code
-			if(buttons & IN_JUMP)
+			// Based off AbNeR's bhop code
+			if (buttons & IN_JUMP)
 			{
-				if(GetEntProp(client, Prop_Data, "m_nWaterLevel") <= 1 && !(GetEntityMoveType(client) & MOVETYPE_LADDER) && !(GetEntityFlags(client) & FL_ONGROUND))
+				if (GetEntProp(client, Prop_Data, "m_nWaterLevel") <= 1 && !(GetEntityMoveType(client) & MOVETYPE_LADDER) && !(GetEntityFlags(client) & FL_ONGROUND))
 				{
 					SetEntPropFloat(client, Prop_Send, "m_flStamina", 0.0);
 					buttons &= ~IN_JUMP;
